@@ -9,8 +9,8 @@ pixels = neopixel.NeoPixel(board.D18, numPixels,auto_write=False)
 FPSTime = time.time()
 framespersecond_count = 0
 while (True):
-    for (i in range(0,numPixels))
-        pixels[0] = (randint(0,255),randint(0,255),randint(0,255))
+    for i in range(numPixels):
+        pixels[i] = (randint(0,255),randint(0,255),randint(0,255))
     pixels.show()
 
     framespersecond_count+=1
