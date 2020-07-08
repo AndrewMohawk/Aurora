@@ -9,7 +9,8 @@ import pandas as pd # Matrix operations
 import time
   
 # define a video capture object 
-vid = cv2.VideoCapture(0) 
+#vid = cv2.VideoCapture(0) 
+vid = cv2.VideoCapture("colourtest_from_youtube.mp4")
 
 # get image sizes
 vid_w = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -27,7 +28,7 @@ bottomPixels = 100 #pixels bottom
 leftPixels = 50 #pixels Left
 rightPixels = 50 #pixels right
 
-showWindows = False
+showWindows = True
 FPSTime = time.time()
 framespersecond_count = 0
 while(True): 
@@ -35,6 +36,7 @@ while(True):
     # Capture the video frame 
     ret, frame = vid.read() 
     frame = cv2.flip(frame,1)
+    print(frame)
     # img[y:y+h, x:x+w]
     sectionTop = frame[0:heightPixels,0:vid_w]
     sectionBottom = frame[vid_h-heightPixels:vid_h,0:vid_w]
@@ -58,8 +60,37 @@ while(True):
     hs = leftPixels
     ws = 1
     
-    #resizedLeft = cv2.resize(sectionLeft, (ws,hs), interpolation = cv2.INTER_AREA)
-    #resizedRight = cv2.resize(sectionRight, (ws,hs), interpolation = cv2.INTER_AREA)
+    resizedLeft = cv2.resize(sectionLeft, (ws,hs), interpolation = cv2.INTER_AREA)
+    resizedRight = cv2.resize(sectionRight, (ws,hs), interpolation = cv2.INTER_AREA)
+    
+    print(resizedLeft)
+    #print(resizedTop[0][1][1])
+    #print(resizedLeft[15][0])
+
+    #Populate LEDs
+    pixels = {}
+    startPoint = 0
+    for i in range(leftPixels):
+        B,G,R = resizedLeft[i][0]
+        pixels[startPoint + i] = (255-R,255-G,255-B)
+    
+    startPoint += leftPixels
+    for i in range(topPixels):
+        B,G,R = resizedTop[0][i]
+        pixels[startPoint + i] = (255-R,255-G,255-B)
+
+    startPoint += topPixels
+    for i in range(rightPixels):
+        B,G,R = resizedRight[i][0]
+        pixels[startPoint + i] = (255-R,255-G,255-B)
+    
+    startPoint += rightPixels
+    for i in range(topPixels):
+        B,G,R = resizedBottom[0][i]
+        pixels[startPoint + i] = (255-R,255-G,255-B)
+    
+    #print("Assigned {} Pixels".format(len(pixels)))    
+    print(resizedLeft)
 
     #Finished calculations
     framespersecond_count+=1
