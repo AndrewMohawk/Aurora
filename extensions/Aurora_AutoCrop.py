@@ -13,6 +13,7 @@ class Aurora_AutoCrop(AuroraExtension):
         self.Name="Default extension"
         self.count = 0
         self.current_frame = False
+        self.percent = 1
 
     def autocrop(self,image, threshold=0):
         """Crops any edges below or equal to threshold
@@ -45,7 +46,7 @@ class Aurora_AutoCrop(AuroraExtension):
         
         crop_time = datetime.datetime.now()
         #print("Image dimensions pre-crop {} {}".format(self.vid_h,self.vid_w))
-        self.current_frame = self.autocrop(self.current_frame)
+        #self.current_frame = self.autocrop(self.current_frame)
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape 
         #print("Crop Time: \t{}".format(datetime.datetime.now() - crop_time))
         
@@ -53,6 +54,7 @@ class Aurora_AutoCrop(AuroraExtension):
         if(self.vid_h <= 1 and self.vid_w <= 1):
             #print("Empty image {} {}".format(self.vid_h,self.vid_w))
             #print(ret)
+            self.log("Empty image {} {}".format(self.vid_h,self.vid_w))
             self.pixels.fill((0, 0, 0))
             self.pixels.show()
             return
@@ -65,26 +67,26 @@ class Aurora_AutoCrop(AuroraExtension):
         
         
 
-        widthPixels = int(self.vid_w * (percent/100)) + 1
-        heightPixels = int(self.vid_h * (percent/100)) + 1
+        widthPixels = int(self.vid_w * (self.percent/100)) + 1
+        heightPixels = int(self.vid_h * (self.percent/100)) + 1
 
         
 
         cutTime = datetime.datetime.now()
         
-        sectionTop = self.current_frame[0:heightPixels,0:vid_w]
-        sectionBottom = self.current_frame[vid_h-heightPixels:vid_h,0:vid_w]
+        sectionTop = self.current_frame[0:heightPixels,0:self.vid_w]
+        sectionBottom = self.current_frame[self.vid_h-heightPixels:self.vid_h,0:self.vid_w]
         
-        sectionLeft = self.current_frame[0:vid_h,0:widthPixels]
-        sectionRight = self.current_frame[0:vid_h,vid_w-widthPixels:vid_w]
+        sectionLeft = self.current_frame[0:self.vid_h,0:widthPixels]
+        sectionRight = self.current_frame[0:self.vid_h,self.vid_w-widthPixels:self.vid_w]
 
         
-        print("Cut Time: \t{}".format(datetime.datetime.now() - cutTime))
+        #print("Cut Time: \t{}".format(datetime.datetime.now() - cutTime))
         resizeTime = datetime.datetime.now()
         # get shape
         h, w, c = sectionTop.shape
         hs = 1
-        ws = topPixels
+        ws = self.pixelsTop
         
         # resize image using block averaging
         #print("b {} {} {}".format(sectionTop,ws,hs))
@@ -95,38 +97,38 @@ class Aurora_AutoCrop(AuroraExtension):
 
         #get shape for sides
         h,w,c = sectionLeft.shape
-        hs = leftPixels
+        hs = self.pixelsLeft
         ws = 1
         #print("c")
         resizedLeft = cv2.resize(sectionLeft, (ws,hs), interpolation = cv2.INTER_AREA)
         resizedRight = cv2.resize(sectionRight, (ws,hs), interpolation = cv2.INTER_AREA)
 
-        print("Resize Time: \t{}".format(datetime.datetime.now() - resizeTime))
+        #print("Resize Time: \t{}".format(datetime.datetime.now() - resizeTime))
         #Finished calculations
 
 
         #Populate LEDs
         startPoint = 0
-        for i in range(leftPixels):
+        for i in range(self.pixelsLeft):
             B,G,R = resizedLeft[i][0]
-            self.pixels[leftPixels - (startPoint + i)] = (R,G,B)
+            self.pixels[self.pixelsLeft - (startPoint + i)] = (R,G,B)
         #print(pixels)
         
-        startPoint += leftPixels
-        for i in range(topPixels):
+        startPoint += self.pixelsLeft
+        for i in range(self.pixelsTop):
             B,G,R = resizedTop[0][i]
             self.pixels[startPoint + i] = (R,G,B)
         
-        startPoint += topPixels
-        for i in range(rightPixels):
+        startPoint += self.pixelsTop
+        for i in range(self.pixelsRight):
             B,G,R = resizedRight[i][0]
             self.pixels[startPoint + i] = (R,G,B)
         
-        startPoint += rightPixels
+        startPoint += self.pixelsRight
         #print("starting at {} adding {} pixels".format(startPoint,bottomPixels))
-        for i in range(bottomPixels):
+        for i in range(self.pixelsBottom):
             B,G,R = resizedBottom[0][i]
-            self.pixels[startPoint + bottomPixels - i -1] = (R,G,B)
+            self.pixels[startPoint + self.pixelsBottom - i -1] = (R,G,B)
         '''
         print("Showing {} Pixels".format(len(pixels)))
 
@@ -152,9 +154,9 @@ class Aurora_AutoCrop(AuroraExtension):
         #     # desired button of your choice 
         #     if cv2.waitKey(1) & 0xFF == ord('q'): 
         #         return
-        print("Total Time: \t{}\n".format(datetime.datetime.now() - start_time))
+        #print("Total Time: \t{}\n".format(datetime.datetime.now() - start_time))
         
         
         #visualise!
         self.count += 1
-        print("{} : {}".format(self.Name,self.count))
+        #print("{} : {}".format(self.Name,self.count))

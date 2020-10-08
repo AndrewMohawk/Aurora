@@ -32,11 +32,11 @@ class AuroraExtension:
 
         #Aurora Specifics
         try:
-            self.pixelCount = int(os.environ.get("AURORA_PIXELCOUNT_TOTAL"))
-            self.pixelLeft = int(os.environ["AURORA_PIXELCOUNT_LEFT"])
-            self.pixelRight = int(os.environ["AURORA_PIXELCOUNT_RIGHT"])
-            self.pixelTop = int(os.environ["AURORA_PIXELCOUNT_TOP"])
-            self.pixelBottom = int(os.environ["AURORA_PIXELCOUNT_BOTTOM"])
+            self.pixelsCount = int(os.environ.get("AURORA_PIXELCOUNT_TOTAL"))
+            self.pixelsLeft = int(os.environ["AURORA_PIXELCOUNT_LEFT"])
+            self.pixelsRight = int(os.environ["AURORA_PIXELCOUNT_RIGHT"])
+            self.pixelsTop = int(os.environ["AURORA_PIXELCOUNT_TOP"])
+            self.pixelsBottom = int(os.environ["AURORA_PIXELCOUNT_BOTTOM"])
             self.debug = bool(os.environ["AURORA_DEBUG"])
             if(self.debug == True):
                 

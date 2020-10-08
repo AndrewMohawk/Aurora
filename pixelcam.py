@@ -1,10 +1,9 @@
 # import the opencv library 
 import cv2 
 import sys
-#import numpy
 import numpy as np
 import math
-import pandas as pd # Matrix operations
+import pandas as pd 
 import time
 
 import board
@@ -16,7 +15,7 @@ import datetime
 numPixels = 300
 pixels = neopixel.NeoPixel(board.D18, numPixels,auto_write=False)
 pixels.brightness = 1
-#Amount of pixels/LEDs
+
 topPixels = 85 #pixels top
 bottomPixels = 85 #pixels bottom
 leftPixels = 49 #pixels Left

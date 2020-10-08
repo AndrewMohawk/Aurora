@@ -137,11 +137,11 @@ class Aurora_Webserver(object):
         return """
             <html>
             <head>
-            <title>Screenshot/title>
+            <title>Screenshot</title>
             </head>
             <html>
             <body>
-            <img src="data:image/png;base64, %s" />
+            <img src="data:image/jpeg;base64,%s" />
             </body>
             </html
             """ % (jpeg_base64.decode('utf-8'))
@@ -154,12 +154,6 @@ if __name__ == '__main__':
     
     
     AuroraManager = AuroraManager()
-    
-    
-    
-
-    
-    
     
     if(AuroraManager.config.getboolean('WEBSERVER', 'enabled') == True):
         cherrypy.config.update({'log.screen': False,
