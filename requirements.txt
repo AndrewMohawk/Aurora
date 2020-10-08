@@ -1,3 +1,7 @@
 numpy
 pandas
 opencv-python
+cherrypy
+configparser
+adafruit-circuitpython-neopixel
+board
