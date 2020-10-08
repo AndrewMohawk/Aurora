@@ -62,9 +62,11 @@ if(setupTest):
 
 # define a video capture object 
 vid = cv2.VideoCapture(0) 
+vid.set(cv2.CAP_PROP_BUFFERSIZE, 2)
 #vid = cv2.VideoCapture("colourtest_from_youtube.mp4")
-vid.set(cv2.CAP_PROP_FRAME_WIDTH, int(960))
-vid.set(cv2.CAP_PROP_FRAME_HEIGHT, int(720))
+#vid.set(cv2.CAP_PROP_FRAME_WIDTH, int(800))
+#vid.set(cv2.CAP_PROP_FRAME_HEIGHT, int(600))
+print(vid.get(cv2.CAP_PROP_FPS))
 # get image sizes
 vid_w = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
 vid_h = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -97,7 +99,20 @@ def autocrop(image, threshold=0):
 
     return image
 
-
+def autocrop2(image):
+    # Mask of non-black pixels (assuming image has a single channel).
+    mask = image > 0
+    
+    # Coordinates of non-black pixels.
+    coords = np.argwhere(mask)
+    
+    # Bounding box of non-black pixels.
+    x0, y0 = coords.min(axis=0)
+    x1, y1 = coords.max(axis=0) + 1   # slices are exclusive at the top
+    
+    # Get the contents of the bounding box.
+    cropped = image[x0:x1, y0:y1]
+    return cropped
 FPSTime = time.time()
 framespersecond_count = 0
 try:
@@ -105,11 +120,16 @@ try:
         start_time = datetime.datetime.now()
         # Capture the video frame 
         ret, frame = vid.read()
+        
+        print("Video Frame: \t{}".format(datetime.datetime.now() - start_time))
         vid_h, vid_w, channels = frame.shape 
+        
+        crop_time = datetime.datetime.now()
         #print("Image dimensions pre-crop {} {}".format(vid_h,vid_w))
         frame = autocrop(frame)
-        
         vid_h, vid_w, channels = frame.shape 
+        print("Crop Time: \t{}".format(datetime.datetime.now() - crop_time))
+        
         #print("Image dimensions {} {}".format(vid_h,vid_w))
         if(vid_h <= 1 and vid_w <= 1):
             print("Empty image {} {}".format(vid_h,vid_w))
@@ -121,11 +141,11 @@ try:
         
         
         #cv2.imwrite("frame%d.jpg" % ret, frame) 
-        if(flipImage == True):
-            frame = cv2.flip(frame,1)
+        #if(flipImage == True):
+        #    frame = cv2.flip(frame,1)
         # img[y:y+h, x:x+w]
         
-        print("Fetch Time: \t{}".format(datetime.datetime.now() - start_time))
+        
 
         widthPixels = int(vid_w * (percent/100)) + 1
         heightPixels = int(vid_h * (percent/100)) + 1
@@ -227,7 +247,7 @@ except KeyboardInterrupt:
     pixels.show()
     pass   
 except Exception as e:
-    print("Res now: {} x {}".format(vid_h,vid_w))
+    print("Res now: {} x {}".format(vid_w,vid_h))
     print("Error: {}".format(e))
 
 
