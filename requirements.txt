@@ -4,4 +4,4 @@ opencv-python
 cherrypy
 configparser
 adafruit-circuitpython-neopixel
-board
+blinker

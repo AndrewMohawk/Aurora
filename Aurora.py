@@ -11,7 +11,7 @@ import glob
 import importlib
 import inspect
 import base64
-
+import logging
 from extensions import * #load all extensions
 
 
@@ -24,6 +24,7 @@ class AuroraManager:
         self.current_extension = False
         self.current_extension_name = False 
         self.screenshot_path = False
+        self.extension_started = False
 
         #process config file
         self.loadConfig()
@@ -62,7 +63,7 @@ class AuroraManager:
             
         extensionClass = getattr(module,extension_name)
         x = extensionClass()
-        print("Loaded: {} from ./{}/{}.py".format(x.Name,extension_dir,extension_name))
+        logging.info("Loaded: {} from ./{}/{}.py".format(x.Name,extension_dir,extension_name))
         return x
 
     #Populate all the extensions from the extensions class
@@ -85,16 +86,27 @@ class AuroraManager:
         return current_extension
 
     def setCurrentExtension(self,new_current_extension):
+        self.tearDownExtension()
         os.environ["AURORA_CURRENT_EXTENSION_NAME"] = new_current_extension
         current_extension = self.getExtensionClass(new_current_extension,self.extensions_dir)
+        self.setupExtension()
         self.current_extension = current_extension
         return current_extension
 
     def takeScreenshot(self):
-        print("TAKING SCREENSHOT")
         self.current_extension.takeScreenShot(self.screenshot_path)
 
+    def setupExtension(self):
+        self.current_extension.setup()
+        self.extension_started = True
+    
+    def tearDownExtension(self):
+        self.current_extension.teardown()
+        self.extension_started = False
+
     def loop(self):
+        if(self.extension_started == False): #Its not started, lets kick it off
+            self.setupExtension()
         self.current_extension.visualise()
 
 
@@ -106,13 +118,13 @@ class Aurora_Webserver(object):
     def index(self):
         #return json.dumps(config)
         #os.environ["AURORA_CURRENT_EXTENSION"] = "normalExtension"
-        self.manager.setCurrentExtension("normalExtension")
+        #self.manager.setCurrentExtension("normalExtension")
         return "Hello World!"
     
     def test(self):
         #return json.dumps(config)
         #os.environ["AURORA_CURRENT_EXTENSION"] = "normalExtension"
-        self.manager.setCurrentExtension("exampleExtension")
+        #self.manager.setCurrentExtension("exampleExtension")
         return "Hello World!"
 
     @cherrypy.expose
@@ -125,7 +137,7 @@ class Aurora_Webserver(object):
         return """
             <html>
             <head>
-            <title>Fruit Nutritional Information</title>
+            <title>Screenshot/title>
             </head>
             <html>
             <body>
@@ -144,16 +156,24 @@ if __name__ == '__main__':
     AuroraManager = AuroraManager()
     
     
+    
 
     
+    
+    
     if(AuroraManager.config.getboolean('WEBSERVER', 'enabled') == True):
-        cherrypy.config.update({'server.socket_port': 8080})
-        cherrypy.tree.mount(Aurora_Webserver(AuroraManager), '/')
+        cherrypy.config.update({'log.screen': False,
+                        'log.access_file': '',
+                        'log.error_file': ''})    
+        cherrypy.config.update({'server.socket_port': AuroraManager.config.getint('WEBSERVER','server_port')})
+        cherrypy.config.update({'server.socket_host': AuroraManager.config.get('WEBSERVER','listen_host')})
+        conf = {'/': {},}
+        cherrypy.tree.mount(Aurora_Webserver(AuroraManager), '/',conf)
         cherrypy.engine.start()
     
     while(True):
         AuroraManager.loop()
-        time.sleep(1)
+        time.sleep(0.001)
 
     '''
     currentExtensionName = os.environ["AURORA_CURRENT_EXTENSION"]

@@ -1,12 +1,12 @@
 """
 Generic Extension class
 """
-#import board
-#import neopixel
+import board
+import neopixel
 import cv2
-import numpy as np
-import os
+import os, sys
 import logging
+import time
 
 class AuroraExtension:
     
@@ -16,27 +16,84 @@ class AuroraExtension:
         self.Description = "Generic Extension class"
         self.Name="Generic Extension"
 
+        self.vid = False
+        self.vid_w = 0
+        self.vid_h = 0
+        self.channels = 0
+        self.pixels = False 
+
+        self.FPS_count = 0
+        self.FPS_start_time = 0
+
+        self.debug = False
+
+        logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%m/%d/%Y %I:%M:%S %p')
+
+
         #Aurora Specifics
         try:
-            self.pixelCount = os.environ.get("AURORA_PIXELCOUNT_TOTAL")
-            self.pixelLeft = os.environ["AURORA_PIXELCOUNT_LEFT"]
-            self.pixelRight = os.environ["AURORA_PIXELCOUNT_RIGHT"]
-            self.pixelTop = os.environ["AURORA_PIXELCOUNT_TOP"]
-            self.pixelBottom = os.environ["AURORA_PIXELCOUNT_BOTTOM"]
-            #self.vid = cv2.VideoCapture(0) 
-            #self.vid.set(cv2.CAP_PROP_BUFFERSIZE, 2)
-            #self.vid_w = int(self.vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-            #self.vid_h = int(self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            #self.log("Initialized Aurora with feed of {} x {}".format(self.vid_w,self.vid_h))
+            self.pixelCount = int(os.environ.get("AURORA_PIXELCOUNT_TOTAL"))
+            self.pixelLeft = int(os.environ["AURORA_PIXELCOUNT_LEFT"])
+            self.pixelRight = int(os.environ["AURORA_PIXELCOUNT_RIGHT"])
+            self.pixelTop = int(os.environ["AURORA_PIXELCOUNT_TOP"])
+            self.pixelBottom = int(os.environ["AURORA_PIXELCOUNT_BOTTOM"])
+            self.debug = bool(os.environ["AURORA_DEBUG"])
+            if(self.debug == True):
+                
+                logging.getLogger().setLevel(logging.DEBUG)
+                
+            else:
+                logging.getLogger().setLevel(logging.ERROR)
+                
+
         except Exception as e:
-            self.log("Error during initialisation of {}:{}".format(self.Name,str(e)))
+            self.log("Error during initialisation of {}:{}".format(self.Name,str(e),True))
+            print("Error during initialisation of {}:{}".format(self.Name,str(e)))
+            sys.exit(1)
 
-        #Initial LED pixels
-        #self.pixels = neopixel.NeoPixel(board.D18, numPixels,auto_write=False)
-        #self.pixels.brightness = 1
+       
         
+    #Setup LEDs and Capture
+    def setup(self):
+        try:
+            #Init Capture
+            self.vid = cv2.VideoCapture(0) 
+            self.vid.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+            self.vid_w = int(self.vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+            self.vid_h = int(self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.log("Initialized Aurora with feed of {} x {}".format(self.vid_w,self.vid_h))
 
+            #Initial LED pixels
+            self.pixels = neopixel.NeoPixel(board.D18, 300,auto_write=False)
+            self.pixels.brightness = 1
+        except Exception as e:
+            #Lets not get here chaps.
+            self.log("Error during initialisation of {}:{}".format(self.Name,str(e)),True)
+            print("Error during initialisation of {}:{}".format(self.Name,str(e)))
+            sys.exit(1)
+
+
+    def teardown(self):
+        #incase things need to be broken down
+        self.vid = False
+        self.pixels = False
         
+    
+
+
+    def getFrame(self):
+        self.FPS_count += 1
+        time_diff_fps = time.time() - self.FPS_start_time
+        if(time_diff_fps >= 1):
+            self.log("--- FPS: {} ---".format(self.FPS_count))
+            self.FPS_start_time = time.time()
+            self.FPS_count = 0
+            
+
+        # Capture the video frame 
+        ret, frame = self.vid.read()
+        return [ret,frame]
+
     def takeScreenShot(self,filepath):
 
         # Create a black image
@@ -58,13 +115,13 @@ class AuroraExtension:
         #cv.waitKey(0)
         #cv.destroyAllWindows()
 
-    def log(self,logString,type="Error"):
-        logging.error("{}: {}".format(type,logString))
+    def log(self,log_string,error=False):
+        if(error == True):
+            logging.error("{}".format(log_string))
+        elif(self.debug == True):
+            logging.debug("{}".format(log_string))
 
-    def getFrame(self):
-        # Capture the video frame 
-        ret, frame = vid.read()
-        return [ret,frame]
+    
 
     # This class runs the visualisation (mandatory)
     def visualise(self):
