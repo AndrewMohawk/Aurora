@@ -5,15 +5,14 @@ import numpy as np
 import pandas as pd 
 import cv2
 
-class Aurora_AutoCrop(AuroraExtension):
+class Aurora_NoCrop(AuroraExtension):
     def __init__(self):
         super().__init__()
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
-        self.Description = "This extension takes the HDMI input and calculates a border (including cropping for black borders) to work out ambient lighting for behind the display."
-        self.Name="Aurora Ambient Lighting ( AutoCrop )"
+        self.Description = "This extension takes the HDMI input and calculates a border (WITHOUT cropping) to work out ambient lighting for behind the display. This one is slightly faster as it doesnt need to do any of the maths to work out the cropping."
+        self.Name="Aurora Ambient Lighting"
         self.count = 0
         self.current_frame = False
-        self.cropped_frame = False
         self.percent = 3
         
 
@@ -38,13 +37,13 @@ class Aurora_AutoCrop(AuroraExtension):
         return image
 
     def takeScreenShot(self,filepath):
-        screenshot_frame = self.cropped_frame
+        screenshot_frame = self.current_frame
         widthPixels = int(self.vid_w * (self.percent/100)) + 1
         heightPixels = int(self.vid_h * (self.percent/100)*2) + 1
         
         colour = (0,0,255)
 
-        
+        print("h:{} w:{}".format(heightPixels,self.vid_w))
         #top
         screenshot_frame = cv2.rectangle(screenshot_frame, (0,0), (self.vid_w,heightPixels), (0,0,255), 1)
         #bottom
@@ -71,8 +70,7 @@ class Aurora_AutoCrop(AuroraExtension):
         
         crop_time = datetime.datetime.now()
         #print("Image dimensions pre-crop {} {}".format(self.vid_h,self.vid_w))
-        self.current_frame = self.autocrop(self.current_frame)
-        self.cropped_frame = self.current_frame
+        
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape 
         #print("Crop Time: \t{}".format(datetime.datetime.now() - crop_time))
         

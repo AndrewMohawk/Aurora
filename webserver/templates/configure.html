@@ -1,0 +1,36 @@
+{% include 'header.html' %}
+<div class="row">
+    <div class="col">
+        <div>
+            <div class="alert alert-dismissible alert-info">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Heads up!</strong> You can watch your TV to see the colours on the borders to line it up without having to manually count! Remember to hit 'save' once you are happy with the configuration!
+              </div>
+            <h5>Pixel Counts</h5><hr/>
+            Please select from the boxes below how many pixels or LEDs you have on each side of your display:<br/>
+            Left: <input type="number" id="numLeft" value="{{pixels_left}}" min="0" max="1000" step="1"/>
+            Right:<input type="number"  id="numRight" value="{{pixels_right}}" min="0" max="1000" step="1"/>
+            Top:<input type="number"  id="numTop" value="{{pixels_top}}" min="0" max="1000" step="1"/>
+            Bottom:<input type="number"  id="numBottom" value="{{pixels_bottom}}" min="0" max="1000" step="1"/><br/>
+            <button type="button" id="saveConfig" class="btn btn-success">Save</button>
+        </div>  
+
+
+    </div>
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Current Pixels</h5>
+                <h6 class="card-subtitle text-muted">This shows what the pixels are currently set to</h6>
+            </div>
+            <img id="pixel_image" style="width: 100%; display: block;" src="/assets/img/pixelimage.jpg" alt="Card image">
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    
+</script>
+{% include 'scripts-configure.js' %}
+{% include 'footer.html' %}

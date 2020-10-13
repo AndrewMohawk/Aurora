@@ -10,7 +10,7 @@ server_port = 8080
 [EXTENSIONS]
 directory = extensions
 default_extension = Aurora_AutoCrop
-current_extension = Aurora_Meteor
+current_extension = Aurora_AutoCrop
 
 [AURORA]
 AURORA_PIXELCOUNT_TOTAL = 300
@@ -19,4 +19,6 @@ AURORA_PIXELCOUNT_RIGHT = 50
 AURORA_PIXELCOUNT_TOP = 100
 AURORA_PIXELCOUNT_BOTTOM = 100
 AURORA_DEBUG = false
+
+
 

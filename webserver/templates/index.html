@@ -1,0 +1,96 @@
+{% include 'header.html' %}
+                
+                <div class="row">
+                    <div class="col">
+                        
+                        <div>
+                        <blockquote class="blockquote">
+                            <h3 class="w-100">Current Extension
+                                <span class="badge badge-info float-right ml-2" id="fps">{{fps}} FPS</span>&nbsp;&nbsp;
+                                <span class="badge badge-success float-right" onclick='loadExtension("{{current_extension_meta['FileName']}}");'><a href='#'>↻</a></span>&nbsp;&nbsp;
+                            </h3><hr/>
+                            {%if current_extension_meta == False %}
+                            No extension currently running.
+                            {% endif %}
+                            <p class="text-warning">{{current_extension_meta['Name']}}</p>
+                            <p class="mb-0">{{current_extension_meta['Description']}}</p>
+                            <footer class="blockquote-footer">{{current_extension_meta['Author']}}<cite title="Source Title">{{current_extension_meta['Name']}}</cite></footer>
+                          </blockquote>
+                        </div>
+                        <div class="mt-5">
+                          <h3>Available Extensions</h3><hr/>
+                          
+                          <div class="form-group">
+                            <label for="exampleSelect1"><h5>Available Extensions</h5></label>
+                            <select class="form-control" id="extensionSelect">
+                            <option value=''>Please Selection Extension</option>
+                            {% for key,extension_meta in extensions_meta.items() %}
+                            
+                            
+                            <option value='{{extension_meta['FileName']}}'>{{extension_meta['Name']}}</option>
+                            
+                            {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                        <div id="extension_details" style="display: none;">
+                          <div class="card border-warning mb-3" >
+                            <div class="card-header" id="ext_name"></div>
+                            <div class="card-body">
+                              <h6 class="card-title">Description</h6>  
+                              <p class="card-text" id="ext_description">Please select plugin above</p>
+                              <h6 class="card-title">Author</h6>
+                              <p class="card-text" id="ext_author"></p>
+                              
+                            </div>
+                          </div>
+                          <button type="button" class="btn btn-warning" onclick="loadSelectedExtension();">Load Extension</button>
+
+                        </div>
+                        <div class="mt-5">
+                        <h3>Configure Aurora</h3><hr/>
+                        
+                        </div>
+                        <div class="alert alert-dismissible alert-success">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <h4 class="alert-heading">Configure!</h4>
+                            <p class="mb-0">If this is your first time or you want to change the LED counts head over to <a href='/configure'>configure your system.</a>.</p>
+                          </div>
+                    </div>
+                    <div class="col">
+                      <div class="row">
+                        
+                        <div class="col pl-5">
+                          <label class="form-check-label">
+                            <input id="autoreload" class="form-check-input" type="checkbox" value="" achecked="checked">
+                            Auto reload images (every 1s)
+                          </label>
+                        </div>
+                      
+                      </div>
+                        <div class="card mb-3">
+                            
+                            <div class="card-body">
+                              <h5 class="card-title">Current Screenshot</h5>
+                              <h6 class="card-subtitle text-muted">What the device is currently 'seeing'</h6>
+                            </div>
+                            <img id="screenshot_image" style="width: 100%; max-height: 350px; display: block;" src="/assets/img/screenshot.jpg" alt="Card image">
+                            
+                            
+                          </div>
+                          <div class="card mb-3">
+                            
+                            <div class="card-body">
+                              <h5 class="card-title">Current Pixels</h5>
+                              <h6 class="card-subtitle text-muted">This shows what the pixels are currently set to</h6>
+                            </div>
+                            <img id="pixel_image" style="width: 100%; display: block;" src="/assets/img/pixelimage.jpg" alt="Card image">
+                            
+                            
+                          </div>
+                          
+                    </div>
+                </div>
+              </div>
+              {% include 'scripts-index.js' %}
+  {% include 'footer.html' %}

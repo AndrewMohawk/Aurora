@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Aurora: Open source Ambient Lighting</title>
+
+    <!-- Bootstrap -->
+    <!-- <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="/assets/css/bootstrap-slate.min.css" rel="stylesheet">
+    <link href="/assets/css/cover.css" rel="stylesheet">
+    
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/assets/js/jquery-3.5.1.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <style type="text/css">
+    hr { background-color:#eee; height: 1px; border: 0; }
+    .text-shad { 
+background-color: #666666;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;}
+    </style>
+  </head>
+  <body>
+      
+      <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+      
+      
+        <main role="main" class="inner cover">
+            
+            
+              <div class="bg-light p-3 m-0 p-0 mt-5 row" >
+                <div class="col">
+                <h3 class="text-shad">Aurora: Ambient Lighting</h3>
+            </div>
+            <div class="col">
+                <nav class="nav nav-masthead justify-content-center">
+                    <a class="nav-link  {% if page == 'home' %}active{% endif %}" href="/">Home</a>
+                    <a class="nav-link {% if page == 'configure' %}active{% endif %}" href="/configure">Configure</a>
+                    <a class="nav-link" href="https://twitter.com/AndrewMohawk" target="_blank">Contact</a>
+                  </nav>
+                </div>
+            </div>
+            <div class="jumbotron pt-3 mt-0">
+                {% if msg|length >= 1 %}
+                        <div class="alert alert-dismissible alert-info">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Messages!</strong> 
+                            {% for m in msg %}
+                              {{m}}<br/>
+                            {% endfor %}
+                        </div>
+                        {% endif %}

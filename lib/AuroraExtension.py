@@ -7,14 +7,15 @@ import cv2
 import os, sys
 import logging
 import time
+import numpy as np
 
 class AuroraExtension:
     
     def __init__(self):
         #Generic variables
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
-        self.Description = "Generic Extension class"
-        self.Name="Generic Extension"
+        self.Description = "Aurora Extension class"
+        self.Name="Aurora Extension Class"
 
         self.vid = False
         self.vid_w = 0
@@ -23,6 +24,7 @@ class AuroraExtension:
         self.pixels = False 
 
         self.FPS_count = 0
+        self.FPS_avg = 0
         self.FPS_start_time = 0
 
         self.debug = False
@@ -55,6 +57,7 @@ class AuroraExtension:
         
     #Setup LEDs and Capture
     def setup(self):
+        print("Setting Up {}".format(self.Name))
         try:
             #Init Capture
             self.vid = cv2.VideoCapture(0) 
@@ -64,7 +67,7 @@ class AuroraExtension:
             self.log("Initialized Aurora with feed of {} x {}".format(self.vid_w,self.vid_h))
 
             #Initial LED pixels
-            self.pixels = neopixel.NeoPixel(board.D18, 300,auto_write=False)
+            self.pixels = neopixel.NeoPixel(board.D18, self.pixelsCount,auto_write=False)
             self.pixels.brightness = 1
         except Exception as e:
             #Lets not get here chaps.
@@ -75,24 +78,95 @@ class AuroraExtension:
 
     def teardown(self):
         #incase things need to be broken down
+        print("Tearing down {}".format(self.Name))
         self.vid = False
         self.pixels = False
         
     
+    def makePixelFrame(self,filepath):
+        print("LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom))
+        if(self.pixels != False):
+            pixel_size = 15
+            pixel_size_skew = pixel_size * 2
+            border = 15
+            if(self.pixelsLeft > self.pixelsRight):
+                pixelImageHeight = (self.pixelsLeft * pixel_size) + border + (pixel_size_skew*2)
+            else:
+                pixelImageHeight = (self.pixelsRight * pixel_size) + border + (pixel_size_skew*2)
+
+            if(self.pixelsTop > self.pixelsBottom):
+                pixelImageWidth = (self.pixelsTop * pixel_size) + border 
+            else:
+                pixelImageWidth = (self.pixelsBottom * pixel_size) + border 
+            
+            pixelImage = np.zeros((pixelImageHeight,pixelImageWidth,3), np.uint8)
 
 
-    def getFrame(self):
+            top_y = 5
+            top_x = 5
+
+            start_coordinate = 5 +pixel_size_skew
+
+            #Left Rows
+            for x in range(self.pixelsLeft-1,-1,-1):   #-1 since this actually starts at 0 and goes to num-1
+                start = (top_x,start_coordinate)
+                end = (top_x+pixel_size_skew,start_coordinate+pixel_size)
+                colour = (self.pixels[x][2],self.pixels[x][1],self.pixels[x][0])
+                pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
+                start_coordinate += pixel_size
+            
+
+            start_coordinate = 5
+            #Top rows
+            
+            for x in range(self.pixelsLeft,self.pixelsLeft+self.pixelsTop):
+                start = (start_coordinate,top_y)
+                end = (start_coordinate+pixel_size,top_y+pixel_size_skew)
+                colour = (self.pixels[x][2],self.pixels[x][1],self.pixels[x][0])
+                pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
+                start_coordinate += pixel_size
+
+            start_coordinate = 5 +pixel_size_skew
+            #Right Rows
+            for x in range(self.pixelsLeft+self.pixelsTop,self.pixelsLeft+self.pixelsTop+self.pixelsRight):
+                start = (top_x+(self.pixelsTop*pixel_size)-pixel_size_skew,start_coordinate)
+                end = (top_x+(self.pixelsTop*pixel_size),start_coordinate+pixel_size)
+
+                colour = (self.pixels[x][2],self.pixels[x][1],self.pixels[x][0])
+                color = (255,0,0)
+                pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
+                start_coordinate += pixel_size
+
+            start_coordinate = 5
+            #Bottom rows
+            for x in range(self.pixelsCount-1,self.pixelsLeft+self.pixelsTop+self.pixelsRight-1,-1):
+                start = (start_coordinate,top_y+(self.pixelsLeft*pixel_size)+pixel_size_skew+pixel_size_skew)
+                end = (start_coordinate+pixel_size,top_y+(self.pixelsLeft*pixel_size)+pixel_size_skew)
+                colour = (self.pixels[x][2],self.pixels[x][1],self.pixels[x][0])
+                pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
+                start_coordinate += pixel_size
+
+            #Save Image
+            cv2.imwrite(filepath,pixelImage) 
+            self.log("Saved PixelImage")
+        else:
+            self.log("Pixels not available, no image saved")
+
+
+    def getFrame(self,video=True):
         self.FPS_count += 1
         time_diff_fps = time.time() - self.FPS_start_time
         if(time_diff_fps >= 1):
-            self.log("--- FPS: {} ---".format(self.FPS_count))
+            #self.log("--- FPS: {} ---".format(self.FPS_count))
+            self.FPS_avg = self.FPS_count
             self.FPS_start_time = time.time()
             self.FPS_count = 0
             
-
-        # Capture the video frame 
-        ret, frame = self.vid.read()
-        return [ret,frame]
+        if(video == True):
+            # Capture the video frame 
+            ret, frame = self.vid.read()
+            return [ret,frame]
+        return True
 
     def takeScreenShot(self,filepath):
 
@@ -119,7 +193,7 @@ class AuroraExtension:
         if(error == True):
             logging.error("{}".format(log_string))
         elif(self.debug == True):
-            logging.debug("{}".format(log_string))
+            logging.debug("DEBUG--{}".format(log_string))
 
     
 

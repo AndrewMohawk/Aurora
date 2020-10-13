@@ -36,5 +36,6 @@ class exampleExtension(AuroraExtension):
     def visualise(self):
         #visualise!
         self.count += 1
-        print("{} : {}".format(self.Name,self.count))
+        #print("{} : {}".format(self.Name,self.count))
+        
         
