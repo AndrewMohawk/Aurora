@@ -10,8 +10,8 @@ import sys
 
 
 class Aurora_Configure(AuroraExtension):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,NeoPixels):
+        super().__init__(NeoPixels)
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
         self.Description = "This extension configures the LEDs"
         self.Name="Aurora Ambient Lighting Configuration"
@@ -25,17 +25,7 @@ class Aurora_Configure(AuroraExtension):
         return True
 
     def setup(self):
-        print("Setting Up2 {}".format(self.Name))
-        print("LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{} TotalPixels: {}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom,self.pixelsCount))
-        try:
-            #Initial LED pixels
-            self.pixels = neopixel.NeoPixel(board.D18, self.pixelsCount,auto_write=False)
-            self.pixels.brightness = 1
-        except Exception as e:
-            #Lets not get here chaps.
-            self.log("Error during initialisation of {}:{}".format(self.Name,str(e)),True)
-            print("Error during initialisation of {}:{}".format(self.Name,str(e)))
-            sys.exit(1)
+        return True
 
     def visualise(self):
         print("*"*50)
@@ -53,7 +43,7 @@ class Aurora_Configure(AuroraExtension):
         colour = (0,255,0) #green
         for x in range(pos,pos+self.pixelsTop):
             self.pixels[x] = colour
-        #print(x)
+        
 
         pos = pos + self.pixelsTop
         colour = (0,0,255) #blue
@@ -66,6 +56,6 @@ class Aurora_Configure(AuroraExtension):
         for z in range(pos,pos+self.pixelsBottom):
             self.pixels[z] = colour
         #print(z)
-        #print(self.pixels)
+        
         self.pixels.show()
         

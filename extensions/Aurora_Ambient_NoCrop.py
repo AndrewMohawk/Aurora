@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd 
 import cv2
 
-class Aurora_NoCrop(AuroraExtension):
-    def __init__(self):
-        super().__init__()
+class Aurora_Ambient_NoCrop(AuroraExtension):
+    def __init__(self,NeoPixels):
+        super().__init__(NeoPixels)
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
         self.Description = "This extension takes the HDMI input and calculates a border (WITHOUT cropping) to work out ambient lighting for behind the display. This one is slightly faster as it doesnt need to do any of the maths to work out the cropping."
         self.Name="Aurora Ambient Lighting"
@@ -78,7 +78,7 @@ class Aurora_NoCrop(AuroraExtension):
         if(self.vid_h <= 1 and self.vid_w <= 1):
             #print("Empty image {} {}".format(self.vid_h,self.vid_w))
             #print(ret)
-            self.log("Empty image {} {}".format(self.vid_h,self.vid_w))
+            #self.log("Empty image {} {}".format(self.vid_h,self.vid_w))
             self.pixels.fill((0, 0, 0))
             self.pixels.show()
             return

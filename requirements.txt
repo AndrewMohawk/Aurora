@@ -7,3 +7,4 @@ adafruit-circuitpython-neopixel
 blinker
 jinja2
 sounddevice
+pyaudio

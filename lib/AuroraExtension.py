@@ -1,8 +1,7 @@
 """
 Generic Extension class
 """
-import board
-import neopixel
+
 import cv2
 import os, sys
 import logging
@@ -11,7 +10,7 @@ import numpy as np
 
 class AuroraExtension:
     
-    def __init__(self):
+    def __init__(self, NeoPixels):
         #Generic variables
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
         self.Description = "Aurora Extension class"
@@ -29,6 +28,10 @@ class AuroraExtension:
 
         self.debug = False
 
+        self.pixels = NeoPixels
+        
+        self.pixels.brightness = 1
+
         logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
@@ -40,6 +43,7 @@ class AuroraExtension:
             self.pixelsTop = int(os.environ["AURORA_PIXELCOUNT_TOP"])
             self.pixelsBottom = int(os.environ["AURORA_PIXELCOUNT_BOTTOM"])
             self.debug = bool(os.environ["AURORA_DEBUG"])
+
             if(self.debug == True):
                 
                 logging.getLogger().setLevel(logging.DEBUG)
@@ -49,12 +53,41 @@ class AuroraExtension:
                 
 
         except Exception as e:
-            self.log("Error during initialisation of {}:{}".format(self.Name,str(e),True))
+            self.log("Error during initialisation of {}:{}".format(self.Name,str(e)),True)
             print("Error during initialisation of {}:{}".format(self.Name,str(e)))
             sys.exit(1)
 
-       
-        
+    def fade_out_pixels(self):
+        allout = False
+        x= 0
+        while(allout == False):
+            
+            if(x == self.pixelsCount):
+                x = 0
+            
+            
+            allout = True
+            for z in range(0,self.pixelsCount):
+                
+                if(self.pixels[z] != [0,0,0]):
+                    allout = False
+                    self.fadeToBlack(z)
+                    
+            self.pixels.show()
+            x += 1
+            
+
+
+
+    def fadeToBlack(self,pixelPos):
+        fadeValue = 64
+        b,g,r = self.pixels[pixelPos]
+
+        r = 0 if r <=10 else int(r - (r*fadeValue/255))
+        g = 0 if g <=10 else int(g - (g*fadeValue/255))
+        b = 0 if b <=10 else int(b - (b*fadeValue/255))
+
+        self.pixels[pixelPos] = (b,g,r)
     #Setup LEDs and Capture
     def setup(self):
         print("Setting Up {}".format(self.Name))
@@ -67,8 +100,9 @@ class AuroraExtension:
             self.log("Initialized Aurora with feed of {} x {}".format(self.vid_w,self.vid_h))
 
             #Initial LED pixels
-            self.pixels = neopixel.NeoPixel(board.D18, self.pixelsCount,auto_write=False)
-            self.pixels.brightness = 1
+            #We are no longer doing this here since re-initialising the object does not work, see https://github.com/adafruit/Adafruit_Blinka/issues/355
+            #self.pixels = neopixel.NeoPixel(board.D18, self.pixelsCount,auto_write=False)
+            #self.pixels.brightness = 1
         except Exception as e:
             #Lets not get here chaps.
             self.log("Error during initialisation of {}:{}".format(self.Name,str(e)),True)
@@ -79,12 +113,14 @@ class AuroraExtension:
     def teardown(self):
         #incase things need to be broken down
         print("Tearing down {}".format(self.Name))
+        self.fade_out_pixels()
         self.vid = False
-        self.pixels = False
+        #We are no longer doing this here since re-initialising the object does not work, see https://github.com/adafruit/Adafruit_Blinka/issues/355
+        #self.pixels = False
         
     
     def makePixelFrame(self,filepath):
-        print("LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom))
+        #print("LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom))
         if(self.pixels != False):
             pixel_size = 15
             pixel_size_skew = pixel_size * 2
@@ -152,6 +188,7 @@ class AuroraExtension:
         else:
             self.log("Pixels not available, no image saved")
 
+    
 
     def getFrame(self,video=True):
         self.FPS_count += 1

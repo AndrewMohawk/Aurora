@@ -4,6 +4,9 @@ colourtest_from_youtube.mp4
 *.jpeg
 env/*
 .vscode/
+audio.py
+auroraspec.py
+spec.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

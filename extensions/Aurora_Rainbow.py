@@ -6,8 +6,8 @@ import pandas as pd
 import cv2
 
 class Aurora_Rainbow(AuroraExtension):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,NeoPixels):
+        super().__init__(NeoPixels)
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
         self.Description = "This extension displays a rainbow pattern on the LEDs, a lot of this code is from https://learn.adafruit.com/circuitpython-essentials/circuitpython-neopixel"
         self.Name="Aurora Rainbow Display ( LED Only )"
@@ -50,5 +50,5 @@ class Aurora_Rainbow(AuroraExtension):
         if(self.count == 255):
             self.count = 0
 
-        time.sleep(0.1)
+        time.sleep(0.01)
         #print("{} : {}".format(self.Name,self.count))

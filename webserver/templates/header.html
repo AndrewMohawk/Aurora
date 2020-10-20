@@ -52,7 +52,7 @@ background-color: #666666;
                 {% if msg|length >= 1 %}
                         <div class="alert alert-dismissible alert-info">
                             <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Messages!</strong> 
+                            <strong>Messages!</strong> <br/>
                             {% for m in msg %}
                               {{m}}<br/>
                             {% endfor %}

@@ -5,8 +5,8 @@ import numpy as np
 import cv2
 
 class exampleExtension(AuroraExtension):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,NeoPixels):
+        super().__init__(NeoPixels)
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
         self.Description = "Extension Example"
         self.Name="example extension"

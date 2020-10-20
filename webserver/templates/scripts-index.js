@@ -16,8 +16,8 @@
                     }
                   })
                   d = new Date();
-                  $("#screenshot_image").attr("src", "/assets/img/screenshot.jpg?"+d.getTime());
-                  $("#pixel_image").attr("src", "/assets/img/pixelimage.jpg?"+d.getTime());
+                  $("#screenshot_image").attr("src", "/load_screenshot/?"+d.getTime());
+                  $("#pixel_image").attr("src", "/load_pixel_image?"+d.getTime());
                   
                 }
                 }, 1000);

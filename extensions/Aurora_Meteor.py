@@ -7,8 +7,8 @@ import cv2
 from random import randint
 
 class Aurora_Meteor(AuroraExtension):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,NeoPixels):
+        super().__init__(NeoPixels)
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
         self.Description = "This has a 'meteor' effect in a random colour that shoots around the strip"
         self.Name="Aurora Meteor Display ( LED Only )"
@@ -53,10 +53,10 @@ class Aurora_Meteor(AuroraExtension):
         
         #visualise!
         self.count += 1
-        self.meteorRain (self.count,self.currentCol)
+        self.meteorRain(self.count,self.currentCol)
         if(self.count == self.pixelsCount + self.meteorSize):
             self.count = 0
             self.currentCol = (randint(0,255),randint(0,255),randint(0,255))
 
-        time.sleep(0.05)
+        #time.sleep(0.01)
         #print("{} : {}".format(self.Name,self.count))

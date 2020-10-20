@@ -12,6 +12,8 @@ import importlib
 import inspect
 import base64
 import logging
+import board
+import neopixel
 from shutil import copyfile
 
 from jinja2 import Environment, FileSystemLoader
@@ -31,10 +33,14 @@ class AuroraManager:
         self.extension_started = False
         self.loopRunning = False
         self.messages = []
-
+        self.enabled = False
+        self.screenshot_b64 = ""
+        self.pixel_image_b64 = ""
 
         #process config file
         self.loadConfig()
+
+        self.neoPixels = neopixel.NeoPixel(board.D18, 999,auto_write=False)
 
         #populate extensions
         self.populateExtensions()
@@ -71,6 +77,9 @@ class AuroraManager:
     
         #set pixel image path
         self.pixel_image_path = self.config["GENERAL"]["pixel_image_path"]
+
+        #set enabled flag
+        self.enabled = self.config.getboolean("GENERAL","enabled")
             
     #Get a particular extension
     def getExtensionClass(self,extension_name,extension_dir):
@@ -79,7 +88,7 @@ class AuroraManager:
         x = False
         try:
             extensionClass = getattr(module,extension_name)
-            x = extensionClass()
+            x = extensionClass(self.neoPixels)
             logging.info("Loaded: {} from ./{}/{}.py".format(x.Name,extension_dir,extension_name))
         except Exception as e:
             self.addMessage("Could not load module from ./{}/{}.py error: {}".format(extension_dir,extension_name,str(e)))
@@ -130,8 +139,7 @@ class AuroraManager:
     def setCurrentExtension(self,new_current_extension):
         tempExt = self.getExtensionClass(new_current_extension,self.extensions_dir)
         if(tempExt != False):
-            self.current_extension = tempExt
-            self.current_extension_name = new_current_extension
+            
             while self.loopRunning == True:
                 #lets wait this out or things get REEAAAL funky
                 time.sleep(0.001)
@@ -139,6 +147,9 @@ class AuroraManager:
             if(self.extension_started == True):
                 self.tearDownExtension()
                 self.extension_started = False
+            
+            self.current_extension = tempExt
+            self.current_extension_name = new_current_extension
 
             os.environ["AURORA_CURRENT_EXTENSION_NAME"] = new_current_extension
             self.current_extension_meta = self.fetchMeta(self.current_extension,new_current_extension)
@@ -151,28 +162,32 @@ class AuroraManager:
 
 
     def takeScreenshot(self):
-        self.current_extension.takeScreenShot(self.screenshot_path)
+        if(self.current_extension != False):
+            self.current_extension.takeScreenShot(self.screenshot_path)
     
     def makePixelImage(self):
-        self.current_extension.makePixelFrame(self.pixel_image_path)
+        if(self.current_extension != False):
+            self.current_extension.makePixelFrame(self.pixel_image_path)
 
     def setupExtension(self):
         self.current_extension.setup()
         self.extension_started = True
     
     def tearDownExtension(self):
-        self.current_extension.teardown()
         self.extension_started = False
+        self.current_extension.teardown()
+        
 
     def loop(self):
-        if(self.extension_started != False): #only loop if its started
-            #lets let other processes know we are in the middle of a loop
-            self.loopRunning = True
-            try:
-                self.current_extension.visualise()
-            except Exception as e:
-                self.addMessage("Error in visualise: {}".format(str(e)))
-            self.loopRunning = False
+        if(self.enabled == True): #only if the entire thing is enabled
+            if(self.extension_started != False): #only loop if the extension is started
+                #lets let other processes know we are in the middle of a loop
+                self.loopRunning = True
+                try:
+                    self.current_extension.visualise()
+                except Exception as e:
+                    self.addMessage("Error in visualise: {}".format(str(e)))
+                self.loopRunning = False
 
 
 class Aurora_Webserver(object):
@@ -185,15 +200,19 @@ class Aurora_Webserver(object):
             #process config file
             self.manager.loadConfig()
             #set/load the extension
-            self.manager.setCurrentExtension(self.current_extension_name)
+            self.manager.setCurrentExtension(self.manager.current_extension_name)
 
         self.manager.populateExtensions()
         tmpl = env.get_template('index.html')
         self.screenshot()
         template_variables = {}
+
         template_variables['extensions_meta'] = self.manager.extensions
         template_variables['current_extension_meta'] = self.manager.current_extension_meta
-        template_variables['fps'] = self.manager.current_extension.FPS_avg
+        if(self.manager.current_extension != False):
+            template_variables['fps'] = self.manager.current_extension.FPS_avg
+        else:
+             template_variables['fps'] = 0
         template_variables["page"] = "home"
         template_variables['msg'] = self.manager.messages
         self.manager.messages = []
@@ -215,7 +234,23 @@ class Aurora_Webserver(object):
         template_variables["page"] = "configure"
         template_variables['msg'] = self.manager.messages
         self.manager.messages = []
+        print("----"*20)
         return tmpl.render(template_variables)
+
+    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_in()
+    @cherrypy.expose
+    def update_enabled(self):
+        input_json = cherrypy.request.json
+        if "enabled" in input_json:
+            try:
+                self.manager.config.set("GENERAL","enabled",bool(input_json["enabled"]))
+                self.manager.saveConfig()
+                return "ok"
+            except:
+                pass
+        else:
+            return False
 
 
     @cherrypy.tools.json_out()
@@ -231,7 +266,7 @@ class Aurora_Webserver(object):
         configChange = False
         
 
-        print(input_json)
+        
 
         if "pixelcount_left" in input_json:
             try:
@@ -276,7 +311,7 @@ class Aurora_Webserver(object):
         self.manager.current_extension.pixelsRight = pixelcount_right
         self.manager.current_extension.pixelsTop = pixelcount_top
         self.manager.current_extension.pixelsBottom = pixelcount_bottom
-        self.manager.current_extension.setup() #we need to re-init the neopixel library cause there could be more now
+        self.manager.current_extension.setup() 
         self.manager.current_extension.visualise()
         
         
@@ -310,12 +345,33 @@ class Aurora_Webserver(object):
     def screenshot(self):
         self.manager.takeScreenshot()
         self.manager.makePixelImage()
-        copyfile(self.manager.screenshot_path,"./webserver/static/img/screenshot.jpg")
-        copyfile(self.manager.pixel_image_path,"./webserver/static/img/pixelimage.jpg")
-        return str(self.manager.current_extension.FPS_avg)
+       
+        if(self.manager.current_extension != False):
+            return str(self.manager.current_extension.FPS_avg)
+        else:
+            return 0
         
-
+    @cherrypy.expose
+    def load_screenshot(self,**params):
+        try:
+            f = open(self.manager.screenshot_path, "rb")
+            contents = f.read()
+            f.close()
+            return contents
+        except Exception as e:
+            self.manager.log("Error loading image {}: Err: {}".format(self.manager.screenshot_path,str(e)))
+            return False
     
+    @cherrypy.expose
+    def load_pixel_image(self,**params):
+        try:
+            f = open(self.manager.pixel_image_path, "rb")
+            contents = f.read()
+            f.close()
+            return contents
+        except Exception as e:
+            self.manager.log("Error loading image {}: Err: {}".format(self.manager.pixel_image_path,str(e)))
+            return False
 
 if __name__ == '__main__':
     #x = threading.Thread(target=thread_function, args=(1,), daemon=True)

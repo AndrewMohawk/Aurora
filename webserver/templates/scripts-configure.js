@@ -8,9 +8,6 @@ $( document ).ready(function() {
   setInterval(function()
   { 
 
-    // $.ajax({
-    //   url: "/screenshot/",
-    // });
 
     
     
@@ -23,7 +20,7 @@ function reloadPixelImage() {
      url: "/screenshot/",
   });
   d = new Date(); 
-  $("#pixel_image").attr("src", "/assets/img/pixelimage.jpg?"+d.getTime());
+  $("#pixel_image").attr("src", "/load_pixel_image?"+d.getTime());
 }
 $('#saveConfig').on("click", function(event){
 
@@ -53,7 +50,7 @@ $('#saveConfig').on("click", function(event){
 
 });
 $('#numLeft, #numRight, #numTop, #numBottom').on("change", function (event) {
-    
+    console.log("here");
     val = $(this).val()
     id = $(this).attr("id")
     
