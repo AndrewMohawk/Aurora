@@ -193,7 +193,21 @@ class AuroraManager:
 class Aurora_Webserver(object):
     def __init__(self,Manager):
         self.manager = Manager
+
+    @cherrypy.expose
+    def about(self):
+        self.manager.loadConfig()
         
+        tmpl = env.get_template('about.html')
+        template_variables = {}
+        template_variables['extensions_meta'] = self.manager.extensions
+        template_variables['current_extension_meta'] = self.manager.current_extension_meta
+        template_variables['config'] = {section: dict(self.manager.config[section]) for section in self.manager.config.sections()}
+        template_variables["page"] = "about"
+        template_variables['msg'] = self.manager.messages
+        self.manager.messages = []
+        return tmpl.render(template_variables)
+
     @cherrypy.expose
     def index(self):
         if(self.manager.current_extension_name == "Aurora_Configure"):
@@ -201,9 +215,36 @@ class Aurora_Webserver(object):
             self.manager.loadConfig()
             #set/load the extension
             self.manager.setCurrentExtension(self.manager.current_extension_name)
+            self.manager.setupExtension()
 
         self.manager.populateExtensions()
         tmpl = env.get_template('index.html')
+
+        template_variables = {}
+
+        template_variables['extensions_meta'] = self.manager.extensions
+        template_variables['current_extension_meta'] = self.manager.current_extension_meta
+        if(self.manager.current_extension != False):
+            template_variables['fps'] = self.manager.current_extension.FPS_avg
+        else:
+             template_variables['fps'] = 0
+        template_variables["configured"] = self.manager.config.getboolean('GENERAL', 'configured')
+        template_variables["enabled"] = self.manager.config.getboolean('GENERAL', 'enabled')
+        template_variables["page"] = "home"
+        template_variables['msg'] = self.manager.messages
+        self.manager.messages = []
+        return tmpl.render(template_variables)
+    
+    @cherrypy.expose
+    def view(self):
+        if(self.manager.current_extension_name == "Aurora_Configure"):
+            #process config file
+            self.manager.loadConfig()
+            #set/load the extension
+            self.manager.setCurrentExtension(self.manager.current_extension_name)
+
+        self.manager.populateExtensions()
+        tmpl = env.get_template('view.html')
         self.screenshot()
         template_variables = {}
 
@@ -213,15 +254,17 @@ class Aurora_Webserver(object):
             template_variables['fps'] = self.manager.current_extension.FPS_avg
         else:
              template_variables['fps'] = 0
-        template_variables["page"] = "home"
+        template_variables["configured"] = self.manager.config.getboolean('GENERAL', 'configured')
+        template_variables["enabled"] = self.manager.config.getboolean('GENERAL', 'enabled')
+        template_variables["page"] = "view"
         template_variables['msg'] = self.manager.messages
         self.manager.messages = []
         return tmpl.render(template_variables)
-    
 
     @cherrypy.expose
     def configure(self):
-        
+        if(self.manager.enabled == False): #Its turned off, we need it on to config
+            self.manager.enabled = True
         tmpl = env.get_template('configure.html')
         self.manager.setCurrentExtension("Aurora_Configure")
         self.manager.extension_started = False #so it doesnt loop visualise
@@ -237,21 +280,36 @@ class Aurora_Webserver(object):
         print("----"*20)
         return tmpl.render(template_variables)
 
-    @cherrypy.tools.json_out()
+
+    
     @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
     @cherrypy.expose
-    def update_enabled(self):
+    def update_config(self):
         input_json = cherrypy.request.json
         if "enabled" in input_json:
             try:
-                self.manager.config.set("GENERAL","enabled",bool(input_json["enabled"]))
+                return_json = {"status":"ok"}
+                enabled_status = input_json["enabled"]
+                self.manager.enabled = enabled_status
+                if(enabled_status == False):
+                    #we are turning it off, tear down the extension
+                    self.manager.tearDownExtension()
+                    return_json["message"] = "Aurora successfully turned off"
+                elif(enabled_status == True):
+                    #we are turning it on, lets put everything back
+                    self.manager.setupExtension()
+                    return_json["message"] = "Aurora successfully turned on"
+
+                self.manager.config.set("GENERAL","enabled",str(enabled_status))
                 self.manager.saveConfig()
-                return "ok"
-            except:
+                return return_json
+
+            except Exception as e:
+                return {"status":"error","error":str(e)}
                 pass
         else:
-            return False
-
+            return {"status":"error","error":"No setting found in request"}
 
     @cherrypy.tools.json_out()
     @cherrypy.tools.json_in()
@@ -265,8 +323,8 @@ class Aurora_Webserver(object):
         
         configChange = False
         
-
         
+        errors = []
 
         if "pixelcount_left" in input_json:
             try:
@@ -274,7 +332,8 @@ class Aurora_Webserver(object):
                 if(led_input_count != pixelcount_left):
                     configChange = True
                     pixelcount_left = led_input_count
-            except:
+            except Exception as e:
+                errors.append(str(e))
                 pass #whatever, you are doing bad things with input
             
         if "pixelcount_right" in input_json:
@@ -283,7 +342,8 @@ class Aurora_Webserver(object):
                 if(led_input_count != pixelcount_right):
                     configChange = True
                     pixelcount_right = led_input_count
-            except:
+            except Exception as e:
+                errors.append(str(e))
                 pass #whatever, you are doing bad things with input
         
         if "pixelcount_top" in input_json:
@@ -292,7 +352,8 @@ class Aurora_Webserver(object):
                 if(led_input_count != pixelcount_top):
                     configChange = True
                     pixelcount_top = led_input_count
-            except:
+            except Exception as e:
+                errors.append(str(e))
                 pass #whatever, you are doing bad things with input
 
         if "pixelcount_bottom" in input_json:
@@ -301,33 +362,45 @@ class Aurora_Webserver(object):
                 if(led_input_count != pixelcount_bottom):
                     configChange = True
                     pixelcount_bottom = led_input_count
-            except:
+            except Exception as e:
+                errors.append(str(e))
                 pass #whatever, you are doing bad things with input
 
         pixelcount_total = pixelcount_left + pixelcount_right + pixelcount_top + pixelcount_bottom
         
-        self.manager.current_extension.pixelsCount  = pixelcount_total
-        self.manager.current_extension.pixelsLeft = pixelcount_left
-        self.manager.current_extension.pixelsRight = pixelcount_right
-        self.manager.current_extension.pixelsTop = pixelcount_top
-        self.manager.current_extension.pixelsBottom = pixelcount_bottom
-        self.manager.current_extension.setup() 
-        self.manager.current_extension.visualise()
+        try:
+            self.manager.current_extension.pixelsCount  = pixelcount_total
+            self.manager.current_extension.pixelsLeft = pixelcount_left
+            self.manager.current_extension.pixelsRight = pixelcount_right
+            self.manager.current_extension.pixelsTop = pixelcount_top
+            self.manager.current_extension.pixelsBottom = pixelcount_bottom
+            self.manager.current_extension.setup() 
+            self.manager.current_extension.visualise()
+        except Exception as e:
+                errors.append(str(e))
         
         
         
         if "save" in input_json:
-            self.manager.config.set("AURORA","AURORA_PIXELCOUNT_LEFT",str(pixelcount_left))
-            self.manager.config.set("AURORA","AURORA_PIXELCOUNT_RIGHT",str(pixelcount_right))
-            self.manager.config.set("AURORA","AURORA_PIXELCOUNT_TOP",str(pixelcount_top))
-            self.manager.config.set("AURORA","AURORA_PIXELCOUNT_BOTTOM", str(pixelcount_bottom))
-            self.manager.config.set("AURORA","AURORA_PIXELCOUNT_TOTAL", str(pixelcount_total))
-            self.manager.saveConfig()
-            self.manager.addMessage("Saved config!")
-           
+            try:
+                self.manager.config.set("AURORA","AURORA_PIXELCOUNT_LEFT",str(pixelcount_left))
+                self.manager.config.set("AURORA","AURORA_PIXELCOUNT_RIGHT",str(pixelcount_right))
+                self.manager.config.set("AURORA","AURORA_PIXELCOUNT_TOP",str(pixelcount_top))
+                self.manager.config.set("AURORA","AURORA_PIXELCOUNT_BOTTOM", str(pixelcount_bottom))
+                self.manager.config.set("AURORA","AURORA_PIXELCOUNT_TOTAL", str(pixelcount_total))
+                self.manager.config.set("GENERAL","configured", "True")
+                self.manager.saveConfig()
+                self.manager.addMessage("Saved config!")
+            except Exception as e:
+                errors.append(str(e))
+
+        if(len(errors) == 0):
+            return {"status":"ok"}
+        else:
+            error_string = ",".join(errors)
+            return {"status":"error","error":error_string}
         
         
-        return input_json
 
     @cherrypy.tools.json_out()
     @cherrypy.tools.json_in()
@@ -338,23 +411,29 @@ class Aurora_Webserver(object):
             extension_name = input_json["extension_name"]
             self.manager.setCurrentExtension(extension_name)
 
-        return input_json
+        return {"status":"ok"}
 
 
+    @cherrypy.tools.json_out()
     @cherrypy.expose
     def screenshot(self):
         self.manager.takeScreenshot()
         self.manager.makePixelImage()
        
         if(self.manager.current_extension != False):
-            return str(self.manager.current_extension.FPS_avg)
+            return {"status":"ok"}
         else:
-            return 0
+            return {"status":"error","error":"Could not take screenshot and build pixel image"}
         
     @cherrypy.expose
     def load_screenshot(self,**params):
+        screenshot_path = self.manager.screenshot_path
+        print("hdmi state:{}".format(self.manager.current_extension.noHDMI))
+        #Its not enabled, it doesnt use HDMI or its got a 1x1 image (ie nothing on)
+        if(self.manager.enabled == False or self.manager.current_extension.noHDMI == True or (self.manager.current_extension.vid_h == 1 or self.manager.current_extension.vid_w == 1) ):
+            screenshot_path = os.getcwd() + "/webserver/static/img/emptyimage.jpg"
         try:
-            f = open(self.manager.screenshot_path, "rb")
+            f = open(screenshot_path, "rb")
             contents = f.read()
             f.close()
             return contents
@@ -374,8 +453,6 @@ class Aurora_Webserver(object):
             return False
 
 if __name__ == '__main__':
-    #x = threading.Thread(target=thread_function, args=(1,), daemon=True)
-    
     
     AuroraManager = AuroraManager()
     

@@ -1,0 +1,40 @@
+    {% include 'header.html' %}
+
+    
+
+    <div class="row mb-1 text-center d-flex justify-content-center">
+        <div class="card card-style">
+            <div class="content">
+                <p class="mb-n1 color-highlight font-600">Pixels</p>
+                <h1>NeoPixel View</h1>
+                <div class="d-flex content">
+                    <div class="pt-1">
+                        <h5 data-activate="toggle_images_reload" class="font-700 font-14"><a title="Reload now" href="#" onclick="reloadImages();" class="icon icon-xs rounded-xl icon-border border-green-dark icon-border color-green-dark"><i class="fa fa-retweet"></i></a>&nbsp;&nbsp;Auto Reload <span id="reloadTime">(reloading in 5s)</span></h5>
+                    </div>
+                    <div class="ml-auto mr-4 pr-2">
+                        <div class="custom-control ios-switch ios-switch-icon">
+                            <input data-vibrate="200" type="checkbox" checked="checked" style="visibility: hidden" class="ios-input" id="toggle_images_reload">
+                            <label class="custom-control-label" for="toggle_images_reload"></label>
+                            <span>ON</span>
+                            <span>OFF</span>
+                        </div>
+                    </div>
+                </div>
+                <h1>HDMI View</h1>
+                <p>
+                    <img class="img-fluid" id="image_screenshot" src="/load_screenshot"  />
+                    
+                </p>
+            </div>
+        </div>
+        <div class="card card-style">
+            <div class="content">
+                <p class="mb-n1 color-highlight font-600">Image</p>
+                <h1>Pixel Image View</h1>
+                <p>
+                    <img class="img-fluid" id="image_pixels" src="/load_pixel_image"  />
+                </p>
+            </div>
+        </div>
+    </div>
+       {% include 'footer.html' %}

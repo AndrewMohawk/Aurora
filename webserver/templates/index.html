@@ -1,96 +1,95 @@
 {% include 'header.html' %}
-                
-                <div class="row">
-                    <div class="col">
-                        
-                        <div>
-                        <blockquote class="blockquote">
-                            <h3 class="w-100">Current Extension
-                                <span class="badge badge-info float-right ml-2" id="fps">{{fps}} FPS</span>&nbsp;&nbsp;
-                                <span class="badge badge-success float-right" onclick='loadExtension("{{current_extension_meta['FileName']}}");'><a href='#'>↻</a></span>&nbsp;&nbsp;
-                            </h3><hr/>
-                            {%if current_extension_meta == False %}
-                            No extension currently running.
-                            {% endif %}
-                            <p class="text-warning">{{current_extension_meta['Name']}}</p>
-                            <p class="mb-0">{{current_extension_meta['Description']}}</p>
-                            <footer class="blockquote-footer">{{current_extension_meta['Author']}}<cite title="Source Title">{{current_extension_meta['Name']}}</cite></footer>
-                          </blockquote>
-                        </div>
-                        <div class="mt-5">
-                          <h3>Available Extensions</h3><hr/>
-                          
-                          <div class="form-group">
-                            <label for="exampleSelect1"><h5>Available Extensions</h5></label>
-                            <select class="form-control" id="extensionSelect">
-                            <option value=''>Please Selection Extension</option>
-                            {% for key,extension_meta in extensions_meta.items() %}
-                            
-                            
-                            <option value='{{extension_meta['FileName']}}'>{{extension_meta['Name']}}</option>
-                            
-                            {% endfor %}
-                            </select>
-                          </div>
-                        </div>
-                        <div id="extension_details" style="display: none;">
-                          <div class="card border-warning mb-3" >
-                            <div class="card-header" id="ext_name"></div>
-                            <div class="card-body">
-                              <h6 class="card-title">Description</h6>  
-                              <p class="card-text" id="ext_description">Please select plugin above</p>
-                              <h6 class="card-title">Author</h6>
-                              <p class="card-text" id="ext_author"></p>
-                              
-                            </div>
-                          </div>
-                          <button type="button" class="btn btn-warning" onclick="loadSelectedExtension();">Load Extension</button>
+        {% if configured == False %}
+        <div class="alert mr-3 ml-3 rounded-s bg-yellow-dark" role="alert">
+            <span class="alert-icon color-white"><i class="fa fa-exclamation-triangle font-18"></i></span>
+            <h4 class="color-white font-">Not configured</h4>
+            <strong class="alert-icon-text color-white " >Please <a href="/configure/" class="color-dark-dark font-700 text-uppercase" style="text-decoration: underline;">configure</a> your LEDs now</strong>
+            <button type="button" class="close color-white opacity-60 font-16" data-vibrate="50" data-dismiss="alert" aria-label="Close">&times;</button>
+        </div> 
+        {% endif %}
+        
+        <div class="d-flex content">
+            <div class="pt-1">
+                <h5 data-activate="toggle_aurora_enabled" class="font-700 font-14">System Status</h5>
+            </div>
+            <div class="ml-auto mr-4 pr-2">
+                <div class="custom-control ios-switch ios-switch-icon">
+                    <input data-vibrate="200" type="checkbox" {%if enabled == True %}checked="checked"{% endif %} style="visibility: hidden" class="ios-input" id="toggle_aurora_enabled">
+                    <label class="custom-control-label" for="toggle_aurora_enabled"></label>
+                    <span>ON</span>
+                    <span>OFF</span>
+                </div>
+            </div>
+        </div>
 
-                        </div>
-                        <div class="mt-5">
-                        <h3>Configure Aurora</h3><hr/>
-                        
-                        </div>
-                        <div class="alert alert-dismissible alert-success">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <h4 class="alert-heading">Configure!</h4>
-                            <p class="mb-0">If this is your first time or you want to change the LED counts head over to <a href='/configure'>configure your system.</a>.</p>
-                          </div>
+        <div class="card card-style alert" role="aldddert">
+            <div class="d-flex py-2">
+                <div>
+                    <i class="fa fa-check-circle mr-3 scale-box fa-4x color-green-dark"></i>
+                </div>
+                <div>
+                    <p class="color-highlight mb-n1 font-12 font-600">Current Loaded extension</p>
+                    <h1 class="mb-0">{%if current_extension_meta == False %}
+                            No extension currently running.
+                            {% endif %}{{current_extension_meta['Name']}}  
+                    </h1>
+                </div>
+                
+            </div>
+            <div class="mb-0">
+                {{current_extension_meta['Description']}}
+                <div class="font-600 font-11 color-highlight mb-0">{{current_extension_meta['Author']}}</div>
+            </div>
+        </div>
+
+        <div class="card card-style">
+            <div class="content">
+                
+                <h1>Load Extension</h1>
+                <span class="color-highlight">Select an extension</span>
+                <div class="input-style input-style-2 input-required">
+                    <em><i class="fa fa-angle-down"></i></em>
+                    <select id="aurora_extension_dropdown">    
+                        {% for key,extension_meta in extensions_meta.items() %}
+                        <option value='{{extension_meta['FileName']}}' {% if extension_meta['Name'] == current_extension_meta['Name'] %} selected="selected" {% endif %}}>{{extension_meta['Name']}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <span class="color-highlight">Extension Details</span><div class="divider bg-highlight mb-2"></div>
+                <span id="ext_description">
+                    Please select an extension
+                </span><br/>
+                <span class="color-highlight">Extension Author</span><div class="divider bg-highlight mb-2"></div>
+                <div id="ext_author">
+                </div>
+                <div class="pt-2">
+                
+                <a href="#" class="btn btn-3d btn-m btn-full mb-3 rounded-sm text-uppercase font-900 shadow-s  border-blue-dark bg-blue-light"  onclick="loadExtension();">Load Extension</a>
+                </div>
+    
+    
+            </div>
+            </div>
+
+        <div class="card card-style">
+            <div class="content mb-0">
+                
+                <div class="row mb-0">
+                    <div class="col-4 pr-1">
+                        <a href="/about/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s border-red-dark bg-red-light">About</a>
                     </div>
-                    <div class="col">
-                      <div class="row">
-                        
-                        <div class="col pl-5">
-                          <label class="form-check-label">
-                            <input id="autoreload" class="form-check-input" type="checkbox" value="" achecked="checked">
-                            Auto reload images (every 1s)
-                          </label>
-                        </div>
-                      
-                      </div>
-                        <div class="card mb-3">
-                            
-                            <div class="card-body">
-                              <h5 class="card-title">Current Screenshot</h5>
-                              <h6 class="card-subtitle text-muted">What the device is currently 'seeing'</h6>
-                            </div>
-                            <img id="screenshot_image" style="width: 100%; max-height: 350px; display: block;" src="/loadScreenshot" alt="Card image">
-                            
-                            
-                          </div>
-                          <div class="card mb-3">
-                            
-                            <div class="card-body">
-                              <h5 class="card-title">Current Pixels</h5>
-                              <h6 class="card-subtitle text-muted">This shows what the pixels are currently set to</h6>
-                            </div>
-                            <img id="pixel_image" style="width: 100%; display: block;" src="/loadPixelImage" alt="Card image">
-                            
-                            
-                          </div>
-                          
+                    <div class="col-4 pl-1 pr-1">
+                        <a href="/view/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s  border-green-dark bg-green-light">Display</a>
+                    </div>
+                    <div class="col-4 pl-1">
+                        <a href="/configure/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s  border-blue-dark bg-blue-light">Config</a>
                     </div>
                 </div>
-              </div>
-              {% include 'scripts-index.js' %}
-  {% include 'footer.html' %}
+            </div>
+        </div>
+        
+        <!-- These are specific and dynamic to this page -->
+        <script type="text/javascript">
+            var extensions = {{extensions_meta}}
+        </script>
+        {% include 'footer.html' %}

@@ -28,8 +28,8 @@ class Aurora_Configure(AuroraExtension):
         return True
 
     def visualise(self):
-        print("*"*50)
-        print("VIS: LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{} TotalPixels: {}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom,self.pixelsCount))
+        #print("*"*50)
+        #print("VIS: LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{} TotalPixels: {}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom,self.pixelsCount))
         pos = 0
         #Left pixels
         colour = (255,0,0) #red

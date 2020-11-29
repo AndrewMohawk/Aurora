@@ -59,7 +59,7 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         
         # sectionLeft = self.current_frame[0:self.vid_h,0:widthPixels]
         # sectionRight = self.current_frame[0:self.vid_h,self.vid_w-widthPixels:self.vid_w]
-
+        print("saved screenshot of size {} x {} to {}".format(widthPixels,heightPixels,filepath))
         cv2.imwrite(filepath, screenshot_frame) 
         
         return True
@@ -78,7 +78,7 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         
         #print("Image dimensions {} {}".format(vid_h,vid_w))
         if(self.vid_h <= 1 and self.vid_w <= 1):
-            #print("Empty image {} {}".format(self.vid_h,self.vid_w))
+            print("Empty image {} {}".format(self.vid_h,self.vid_w))
             #print(ret)
             #self.log("Empty image {} {}".format(self.vid_h,self.vid_w))
             self.pixels.fill((0, 0, 0))

@@ -17,8 +17,8 @@ class AuroraExtension:
         self.Name="Aurora Extension Class"
 
         self.vid = False
-        self.vid_w = 0
-        self.vid_h = 0
+        self.vid_w = 1
+        self.vid_h = 1
         self.channels = 0
         self.pixels = False 
 
@@ -27,6 +27,7 @@ class AuroraExtension:
         self.FPS_start_time = 0
 
         self.debug = False
+        self.noHDMI = False
 
         self.pixels = NeoPixels
         
@@ -93,7 +94,20 @@ class AuroraExtension:
         print("Setting Up {}".format(self.Name))
         try:
             #Init Capture
-            self.vid = cv2.VideoCapture(0) 
+            if(self.vid != False):
+                self.vid.release()
+                self.vid = False
+            for i in range(0,5):
+                self.log("Trying video device {}.".format(i))
+                testVid = cv2.VideoCapture(i) 
+                test, frame = testVid.read()
+                if(test):
+                    self.vid = testVid
+                    self.log("Using video device {}.".format(i))
+                    break
+            if(self.vid == False):
+                self.log("Failed to initialise video device")
+                sys.exit("Failed to initialise video device")
             self.vid.set(cv2.CAP_PROP_BUFFERSIZE, 2)
             self.vid_w = int(self.vid.get(cv2.CAP_PROP_FRAME_WIDTH))
             self.vid_h = int(self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -183,6 +197,11 @@ class AuroraExtension:
                 start_coordinate += pixel_size
 
             #Save Image
+            if(pixelImageWidth > 800):
+                r = 800 / float(pixelImageWidth)
+                dim = (800, int(pixelImageHeight * r))
+                pixelImage = cv2.resize(pixelImage, dim, interpolation = cv2.INTER_AREA)   
+
             cv2.imwrite(filepath,pixelImage) 
             self.log("Saved PixelImage")
         else:
@@ -203,6 +222,7 @@ class AuroraExtension:
             # Capture the video frame 
             ret, frame = self.vid.read()
             return [ret,frame]
+        
         return True
 
     def takeScreenShot(self,filepath):

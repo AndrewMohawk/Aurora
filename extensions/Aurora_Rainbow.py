@@ -13,7 +13,7 @@ class Aurora_Rainbow(AuroraExtension):
         self.Name="Aurora Rainbow Display ( LED Only )"
         self.count = 0
         self.current_frame = False
-        
+        self.noHDMI = True
         
 
     def takeScreenShot(self,filepath):

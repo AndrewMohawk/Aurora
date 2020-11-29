@@ -1,0 +1,52 @@
+{% include 'header.html' %}
+        {% if configured == False %}
+        <div class="alert mr-3 ml-3 rounded-s bg-yellow-dark" role="alert">
+            <span class="alert-icon color-white"><i class="fa fa-exclamation-triangle font-18"></i></span>
+            <h4 class="color-white font-">Not configured</h4>
+            <strong class="alert-icon-text color-white " >Please <a href="/configure/" class="color-dark-dark font-700 text-uppercase" style="text-decoration: underline;">configure</a> your LEDs now</strong>
+            <button type="button" class="close color-white opacity-60 font-16" data-vibrate="50" data-dismiss="alert" aria-label="Close">&times;</button>
+        </div> 
+        {% endif %}
+        
+
+
+        <div class="card card-style">
+            <div class="content">
+                
+                <h1>About System</h1>
+                <pre>
+                    <code>
+                {% for key, value in config.items() %}
+                    {% for key2, value2 in value.items() %}
+                        {{key2}} -- {{value2}}
+                    {% endfor %}
+                {% endfor %}
+            </code>
+                </pre>
+    
+    
+            </div>
+            </div>
+
+        <div class="card card-style">
+            <div class="content mb-0">
+                
+                <div class="row mb-0">
+                    <div class="col-4 pr-1">
+                        <a href="/about/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s border-red-dark bg-red-light">About</a>
+                    </div>
+                    <div class="col-4 pl-1 pr-1">
+                        <a href="/view/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s  border-green-dark bg-green-light">Display</a>
+                    </div>
+                    <div class="col-4 pl-1">
+                        <a href="/configure/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s  border-blue-dark bg-blue-light">Config</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- These are specific and dynamic to this page -->
+        <script type="text/javascript">
+            var extensions = {{extensions_meta}}
+        </script>
+        {% include 'footer.html' %}

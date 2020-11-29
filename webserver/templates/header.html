@@ -1,60 +1,61 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Aurora: Open source Ambient Lighting</title>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Aurora Ambient Lighting</title>
+<link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+<link rel="stylesheet" type="text/css" href="/assets/fonts/css/fontawesome-all.min.css">    
 
-    <!-- Bootstrap -->
-    <!-- <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
-    <link href="/assets/css/bootstrap-slate.min.css" rel="stylesheet">
-    <link href="/assets/css/cover.css" rel="stylesheet">
+
+</head>
     
+<body class="theme-light" data-highlight="green">
+    
+<div id="preloader"><div class="spinner-border color-highlight" role="status"></div></div>
+    
+<div id="page">
+    
+    <div class="header header-fixed header-logo-center header-auto-show">
+        <a href="/" class="header-title">Aurora</a>
+        <a href="#" data-back-button class="header-icon header-icon-1"><i class="fas fa-chevron-left"></i></a>
+        <a href="#" data-menu="menu-main" class="header-icon header-icon-4"><i class="fas fa-bars"></i></a>
+        <a href="#" data-toggle-theme class="header-icon header-icon-3 show-on-theme-dark"><i class="fas fa-sun"></i></a>
+        <a href="#" data-toggle-theme class="header-icon header-icon-3 show-on-theme-light"><i class="fas fa-moon"></i></a>
+    </div>
+    
+    <div id="footer-bar" class="footer-bar-6">
+        <a href="/about/"><i class="fa fa-layer-group {% if page == 'about' %}active-nav{% endif %}"></i><span>About</span></a>
+        <a href="/configure/" ><i class="fa fa-wrench {% if page == 'configure' %}active-nav{% endif %}"></i><span>Config</span></a>
+        <a href="/" class="circle-nav  {% if page == 'home' %}active-nav{% endif %}"><i class="fa fa-home"></i><span>Aurora</span></a>
+        <a href="/view/"><i class="fa fa-camera {% if page == 'view' %}active-nav{% endif %}"></i><span>View</span></a>
+        <a href="#" data-menu="menu-main"><i class="fa fa-bars"></i><span>Menu</span></a>
+    </div>
+    
+    <div class="page-title page-title-fixed">
+        <h1 class="font-24">Aurora</h1>
+        <a href="/configure/" class="page-title-icon shadow-xl bg-theme color-theme" data-menu=""><i class="fa fa-wrench"></i></a>
+        <a href="#" class="page-title-icon shadow-xl bg-theme color-theme show-on-theme-light" data-toggle-theme><i class="fa fa-moon"></i></a>
+        <a href="#" class="page-title-icon shadow-xl bg-theme color-theme show-on-theme-dark" data-toggle-theme><i class="fa fa-lightbulb color-yellow-dark"></i></a>
+        <a href="#" class="page-title-icon shadow-xl bg-theme color-theme" data-menu="menu-main"><i class="fa fa-bars"></i></a>
+    </div>
+    <div class="page-title-clear"></div>
 
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="/assets/js/jquery-3.5.1.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="/assets/js/bootstrap.min.js"></script>
-    <style type="text/css">
-    hr { background-color:#eee; height: 1px; border: 0; }
-    .text-shad { 
-background-color: #666666;
-    -webkit-background-clip: text;
-    -moz-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;}
-    </style>
-  </head>
-  <body>
-      
-      <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-      
-      
-        <main role="main" class="inner cover">
-            
-            
-              <div class="bg-light p-3 m-0 p-0 mt-5 row" >
-                <div class="col">
-                <h3 class="text-shad">Aurora: Ambient Lighting</h3>
-            </div>
-            <div class="col">
-                <nav class="nav nav-masthead justify-content-center">
-                    <a class="nav-link  {% if page == 'home' %}active{% endif %}" href="/">Home</a>
-                    <a class="nav-link {% if page == 'configure' %}active{% endif %}" href="/configure">Configure</a>
-                    <a class="nav-link" href="https://twitter.com/AndrewMohawk" target="_blank">Contact</a>
-                  </nav>
-                </div>
-            </div>
-            <div class="jumbotron pt-3 mt-0">
-                {% if msg|length >= 1 %}
-                        <div class="alert alert-dismissible alert-info">
-                            <button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <strong>Messages!</strong> <br/>
-                            {% for m in msg %}
-                              {{m}}<br/>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+        
+    <div class="page-content">
+
+        
+        <div id="menu-warning-2"
+         class="menu menu-box-modal bg-red-dark rounded-m" 
+         data-menu-height="310" 
+         data-menu-width="350">
+        <h1 class="text-center mt-4"><i class="fa fa-3x fa-times-circle scale-box color-white shadow-xl rounded-circle"></i></h1>
+        <h1 class="text-center mt-3 text-uppercase color-white font-700">Wooops!</h1>
+        <p class="boxed-text-l color-white opacity-70">
+             You can continue with your previous actions.<br> Easy to attach these to success calls.
+        </p>
+        <a href="#" class="close-menu btn btn-m btn-center-l button-s shadow-l rounded-s text-uppercase font-600 bg-white color-black">Hmmm, Check again?</a>
+    </div> 

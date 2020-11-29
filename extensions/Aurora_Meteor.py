@@ -16,7 +16,8 @@ class Aurora_Meteor(AuroraExtension):
         self.current_frame = False
         self.meteorSize = 10
         self.currentCol = (255,0,0)
-
+        self.noHDMI = True
+        self.startTime = time.time()
     def takeScreenShot(self,filepath):
         #We have no screenshot since... well its just LEDs
         return True
@@ -52,11 +53,15 @@ class Aurora_Meteor(AuroraExtension):
         
         
         #visualise!
-        self.count += 1
+        self.count += 5
         self.meteorRain(self.count,self.currentCol)
-        if(self.count == self.pixelsCount + self.meteorSize):
+        if(self.count >= self.pixelsCount + self.meteorSize):
+            end = time.time()
+            diff = end - self.startTime
+            print("Elapsed time for {}: {}".format(self.count,diff))
+            self.startTime = time.time()
             self.count = 0
             self.currentCol = (randint(0,255),randint(0,255),randint(0,255))
-
+        print("{} / {}".format(self.count,(self.pixelsCount + self.meteorSize)))
         #time.sleep(0.01)
         #print("{} : {}".format(self.Name,self.count))

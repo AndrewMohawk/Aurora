@@ -30,9 +30,31 @@ class Aurora_AudioSpectogram(AuroraExtension):
 
         self.pixelCount_nobottom = self.pixelsLeft + self.pixelsRight + self.pixelsTop
 
+        self.streamstarted = False
+        self.noHDMI = True
+
     def takeScreenShot(self,filepath):
         #We have no screenshot since... well its just LEDs
         return True
+
+    def startAudioStream(self):
+        if self.streamstarted == True:
+            print("starting stream")
+            while self.streamstarted == True:
+                with sd.InputStream(device=0, channels=1, callback=self.visualiseAudio,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate):
+                    #running stream
+                    sd.wait()
+        print("ended")
+        # while self.streamstarted == True:
+        #     print("starting stream")
+        #     sd.InputStream(device=0, channels=1, callback=self.visualiseAudio,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate)
+            
+    def teardown(self):
+        #incase things need to be broken down
+        print("Tearing down {}".format(self.Name))
+        self.fade_out_pixels()
+        self.vid = False
+        sd.stop()
 
     def fadeToBlack(self,pixelPos):
         fadeValue = 64
@@ -65,7 +87,10 @@ class Aurora_AudioSpectogram(AuroraExtension):
             self.pixels.show()
             
 
-    def callback(self,indata, frames, time, status):
+    def visualiseAudio(self,indata,frames, time, status):
+        
+        #print(indata)
+
         if any(indata):
             magnitude = np.abs(np.fft.rfft(indata[:, 0], n=self.fftsize))
             magnitude *= self.gain / self.fftsize
@@ -85,7 +110,7 @@ class Aurora_AudioSpectogram(AuroraExtension):
             audio_channels = list(d)
             
             chan_led_width = round(self.pixelCount_nobottom/len(audio_channels))
-            
+            #print(audio_channels)
 
             for key,val in enumerate(audio_channels):
                 
@@ -141,14 +166,27 @@ class Aurora_AudioSpectogram(AuroraExtension):
                 if(x != [0,0,0]):
                     count +=1
 
-            #print("Set {} pixels of {} -- groupings of {}".format(count,numPixels,chan_led_width))
+            print("Set {} pixels of {} -- groupings of {}".format(count,self.pixelCount_nobottom,chan_led_width))
             self.pixels.show()
             #sleep(0.01)
 
     def visualise(self):
+        with sd.InputStream(device=0, channels=1, callback=self.visualiseAudio,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate):
+            #running stream
+            sd.wait()
+        # if(self.streamstarted == False):
+            
+        #     self.streamstarted = True
+        #     self.startAudioStream()
+        # print("started")
+        # #myrecording = sd.rec(device=0, channels=1,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate)
+        # myrecording = sd.rec(int(self.samplerate * 50 / 1000),channels=1,samplerate=self.samplerate)
+        # self.visualiseAudio(myrecording)
+        # print("finished")
+        # #with sd.InputStream(device=0, channels=1, callback=self.callback,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate):
+        #     #visualise!
         
-        
-        with sd.InputStream(device=0, channels=1, callback=self.callback,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate):
-            #visualise!
-            time.sleep(0.01)
+            
+            
+        time.sleep(0.01)
         #print("{} : {}".format(self.Name,self.count))

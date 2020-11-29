@@ -1,36 +1,68 @@
-{% include 'header.html' %}
-<div class="row">
-    <div class="col">
-        <div>
-            <div class="alert alert-dismissible alert-info">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <strong>Heads up!</strong> You can watch your TV to see the colours on the borders to line it up without having to manually count! Remember to hit 'save' once you are happy with the configuration!
-              </div>
-            <h5>Pixel Counts</h5><hr/>
-            Please select from the boxes below how many pixels or LEDs you have on each side of your display:<br/>
-            Left: <input type="number" id="numLeft" value="{{pixels_left}}" min="0" max="1000" step="1"/>
-            Right:<input type="number"  id="numRight" value="{{pixels_right}}" min="0" max="1000" step="1"/>
-            Top:<input type="number"  id="numTop" value="{{pixels_top}}" min="0" max="1000" step="1"/>
-            Bottom:<input type="number"  id="numBottom" value="{{pixels_bottom}}" min="0" max="1000" step="1"/><br/>
-            <button type="button" id="saveConfig" class="btn btn-success">Save</button>
-        </div>  
-
-
-    </div>
-    <div class="col">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Current Pixels</h5>
-                <h6 class="card-subtitle text-muted">This shows what the pixels are currently set to</h6>
-            </div>
-            <img id="pixel_image" style="width: 100%; display: block;" src="/load_pixel_image" alt="Card image">
+    {% include 'header.html' %}
+        <div class="card card-style">
+            <div class="content mb-0">
+                <p class="mb-n1 color-highlight font-600">Aurora</p>
+                <h1>Pixel Configuration</h1>
+                <p class="mb-1">
+                    Your LED strip will be showing the colours depicted in the image below, look at the colours and configure the amount of LEDs per side accordingly, once you are happy hit save!
+                </p>
+                <div class="row mb-1 text-center d-flex justify-content-center">
+                    <div class="col-4 ">
+                        Left:
+                        <div class="mx-auto">
+                            <div class="stepper rounded-s float-left">
+                                <a href="#" class="stepper-sub"><i class="fa fa-minus color-red-dark"></i></a>
+                                <input type="number" id="aurora_configure_left" min="1" max="250"value="{{pixels_left}}">
+                                <a href="#" class="stepper-add"><i class="fa fa-plus color-green-dark"></i></a>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        Right:
+                        <div class="mx-auto">
+                            <div class="stepper rounded-s float-left">
+                                <a href="#" class="stepper-sub"><i class="fa fa-minus color-red-dark"></i></a>
+                                <input type="number" id="aurora_configure_right" min="1" max="250"value="{{pixels_right}}">
+                                <a href="#" class="stepper-add"><i class="fa fa-plus color-green-dark"></i></a>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 text-center d-flex justify-content-center">
+                    <div class="col-4 ">
+                        Top:
+                        <div class="mx-auto">
+                            <div class="stepper rounded-s float-left">
+                                <a href="#" class="stepper-sub"><i class="fa fa-minus color-red-dark"></i></a>
+                                <input type="number" min="1" id="aurora_configure_top" max="250"value="{{pixels_top}}">
+                                <a href="#" class="stepper-add"><i class="fa fa-plus color-green-dark"></i></a>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        Bottom:
+                        <div class="mx-auto">
+                            <div class="stepper rounded-s float-left">
+                                <a href="#" class="stepper-sub"><i class="fa fa-minus color-red-dark"></i></a>
+                                <input type="number" min="1" id="aurora_configure_bottom" max="250"value="{{pixels_bottom}}">
+                                <a href="#" class="stepper-add"><i class="fa fa-plus color-green-dark"></i></a>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="d-flex justify-content-center">
+                    <a href="#" id="aurora_configure_save_button" class="btn btn-m btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s bg-green-dark">Save Configuration</a>
+                </div>
+            <p>
+                <img class="img-fluid" id="pixel_image" src="/load_pixel_image/"/>
+            </p>
         </div>
-    </div>
-    
-</div>
-
-<script>
-    
-</script>
-{% include 'scripts-configure.js' %}
-{% include 'footer.html' %}
+        
+        
+       </div>
+       {% include 'footer.html' %}

@@ -7,6 +7,10 @@ env/*
 audio.py
 auroraspec.py
 spec.py
+nohup.out
+config.ini 
+config.ini.bak 
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
