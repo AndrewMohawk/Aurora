@@ -8,42 +8,57 @@
         </div> 
         {% endif %}
         
-
-
-        <div class="card card-style">
-            <div class="content">
-                
-                <h1>About System</h1>
-                <pre>
-                    <code>
-                {% for key, value in config.items() %}
-                    {% for key2, value2 in value.items() %}
-                        {{key2}} -- {{value2}}
-                    {% endfor %}
-                {% endfor %}
-            </code>
-                </pre>
-    
-    
-            </div>
-            </div>
-
-        <div class="card card-style">
-            <div class="content mb-0">
-                
-                <div class="row mb-0">
-                    <div class="col-4 pr-1">
-                        <a href="/about/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s border-red-dark bg-red-light">About</a>
-                    </div>
-                    <div class="col-4 pl-1 pr-1">
-                        <a href="/view/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s  border-green-dark bg-green-light">Display</a>
-                    </div>
-                    <div class="col-4 pl-1">
-                        <a href="/configure/" class="btn btn-3d btn-sm btn-full mb-3 rounded-xs text-uppercase font-900 shadow-s  border-blue-dark bg-blue-light">Config</a>
-                    </div>
+        <div class="card card-style alert" role="aldddert">
+            <div class="d-flex py-2">
+                <div>
+                    <i class="fab fa-github color-black-dark mr-3 fa-3x "></i>
                 </div>
+                <div>
+                    <p class="color-highlight mb-n1 font-12 font-600">Update from GitHub</p>
+                    <h1 class="mb-0">Update Aurora</h1>
+                </div>
+                
+            </div>
+            <div class="">
+                <strong>Current Version:</strong> {{current_version}}<br/>
+                <strong>GitHub Version:</strong> {{github_version}}<br/>
+
+                
             </div>
         </div>
+        
+        <div class="card card-style alert" role="aldddert">
+            <div class="d-flex py-2">
+                <div>
+                    <i class="fa fa-check-circle mr-3 scale-box fa-3x color-green-dark"></i>
+                </div>
+                <div>
+                    <p class="color-highlight mb-n1 font-12 font-600">Current loaded config</p>
+                    <h1 class="mb-0">Configuration</h1>
+                </div>
+                
+            </div>
+            <div class="pl-5">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in config.items() %}
+                            {% for key2, value2 in value.items() %}
+                                <tr><td>{{key2}}</td><td>{{value2}}</td></tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+            </div>
+        </div>
+        
+
         
         <!-- These are specific and dynamic to this page -->
         <script type="text/javascript">

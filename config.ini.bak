@@ -1,6 +1,8 @@
 [GENERAL]
 screenshot_path = /tmp/aurora_screenshot.jpg
 pixel_image_path = /tmp/aurora_pixels.jpg
+configured = False
+enabled = True
 
 [WEBSERVER]
 enabled = True
@@ -9,15 +11,28 @@ server_port = 8080
 
 [EXTENSIONS]
 directory = extensions
-default_extension = Aurora_AutoCrop
-current_extension = Aurora_AutoCrop
+default_extension = Aurora_Ambient_AutoCrop
+current_extension = Aurora_Ambient_AutoCrop
+
+[HDMI]
+HDMI_BRIGHTNESS = -11
+HDMI_SATURATION = 255
+HDMI_CONTRAST = 130
+HDMI_HUE = 0
+
+[HDMI_INITIAL]
+HDMI_BRIGHTNESS = -11
+HDMI_SATURATION = 255
+HDMI_CONTRAST = 130
+HDMI_HUE = 0
 
 [AURORA]
-AURORA_PIXELCOUNT_TOTAL = 300
-AURORA_PIXELCOUNT_LEFT = 50
-AURORA_PIXELCOUNT_RIGHT = 50
-AURORA_PIXELCOUNT_TOP = 100
-AURORA_PIXELCOUNT_BOTTOM = 100
+AURORA_PIXELCOUNT_TOTAL = 270
+AURORA_PIXELCOUNT_LEFT = 49
+AURORA_PIXELCOUNT_RIGHT = 49
+AURORA_PIXELCOUNT_TOP = 86
+AURORA_PIXELCOUNT_BOTTOM = 86
+AURORA_GAMMA = 5.0
 AURORA_DEBUG = false
 
 

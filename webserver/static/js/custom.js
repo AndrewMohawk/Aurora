@@ -24,6 +24,11 @@ $(document).ready(function(){
     //The init_template() function will be triggered when pages open.
 	function init_template(){        
         
+        $("#hdmi_hue, #hdmi_saturation,#hdmi_brightness,#hdmi_contrast,#hdmi_gamma").slider({
+            tooltip: 'always'
+        });
+        
+        
         //Disable Page Jump on Empty Links.
         $('a').on('click', function(){var attrs = $(this).attr('href'); if(attrs === '#'){return false;}});
         
