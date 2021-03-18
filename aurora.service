@@ -5,7 +5,7 @@ After=multi-user.target
 WorkingDirectory=/home/pi/Aurora/
 User=root
 Type=idle
-ExecStart=/usr/bin/sudo /usr/bin/python3 Aurora.py 
+ExecStart=/usr/bin/sudo /usr/bin/python3 Aurora.py 2>&1 > /var/log/Aurora.log 
 Restart=always
 [Install]
 WantedBy=multi-user.target
