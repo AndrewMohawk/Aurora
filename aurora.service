@@ -3,9 +3,9 @@ Description=Aurora light system
 After=multi-user.target
 [Service]
 WorkingDirectory=/home/pi/Aurora/
-User=pi
+User=root
 Type=idle
-ExecStart=/usr/bin/python3 /home/pi/Aurora/pixelcam.py &> /dev/null
+ExecStart=/usr/bin/sudo /usr/bin/python3 Aurora.py 
 Restart=always
 [Install]
 WantedBy=multi-user.target

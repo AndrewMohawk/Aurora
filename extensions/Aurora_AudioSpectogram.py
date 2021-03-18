@@ -22,8 +22,11 @@ class Aurora_AudioSpectogram(AuroraExtension):
         self.gain = 10
         self.low = 10
         self.high = 2500
-
-        self.samplerate = sd.query_devices(0, "input")["default_samplerate"]
+        #Lets find the right device
+        self.deviceID = sd.default.device['input']
+        
+        print("Starting Audio spectogram with Device {}".format(self.deviceID))
+        self.samplerate = sd.query_devices(self.deviceID, "input")["default_samplerate"]
         self.delta_f = (self.high - self.low) / (self.columns - 1)
         self.fftsize = math.ceil(self.samplerate / self.delta_f)
         self.low_bin = math.floor(self.low / self.delta_f)
@@ -40,10 +43,9 @@ class Aurora_AudioSpectogram(AuroraExtension):
 
     def startAudioStream(self):
         if self.streamstarted == True:
-            print("starting stream")
             while self.streamstarted == True:
                 with sd.InputStream(
-                    device=0,
+                    device=self.deviceID,
                     channels=1,
                     callback=self.visualiseAudio,
                     blocksize=int(self.samplerate * 50 / 1000),
@@ -51,10 +53,6 @@ class Aurora_AudioSpectogram(AuroraExtension):
                 ):
                     # running stream
                     sd.wait()
-        print("ended")
-        # while self.streamstarted == True:
-        #     print("starting stream")
-        #     sd.InputStream(device=0, channels=1, callback=self.visualiseAudio,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate)
 
     def teardown(self):
         # incase things need to be broken down
@@ -93,10 +91,8 @@ class Aurora_AudioSpectogram(AuroraExtension):
         self.pixels.show()
 
     def visualiseAudio(self, indata, frames, time, status):
-
-        # print(indata)
-
         if any(indata):
+            
             magnitude = np.abs(np.fft.rfft(indata[:, 0], n=self.fftsize))
             magnitude *= self.gain / self.fftsize
             audio_channels = []
@@ -114,72 +110,42 @@ class Aurora_AudioSpectogram(AuroraExtension):
             audio_channels = list(d)
 
             chan_led_width = round(self.pixelCount_nobottom / len(audio_channels))
-            # print(audio_channels)
 
             for key, val in enumerate(audio_channels):
 
-                # for(p in range(chan_led_width)):
                 first_pixel = key * chan_led_width
                 last_pixel = first_pixel + chan_led_width - 1
                 if last_pixel > self.pixelCount_nobottom:
                     last_pixel = self.pixelCount_nobottom - 1
-                # print("{} - {}".format(first_pixel,last_pixel))
-                # if(key == 4):
-                # sys.exit()
 
                 for pNum in range(first_pixel, last_pixel + 1):
                     col = self.wheel(pNum)
-                    # col = list(wheel(pNum))
-                    # print("Val: {} Col: {}".format(val,col))
-                    # val = val + 100 if val >0 else 0 #lets bump up all the brightness
-                    # col[0] = int(col[0] * (val/255))
-                    # col[1] = int(col[1] * (val/255))
-                    # col[2] = int(col[2] * (val/255))
-                    # print("Val: {} Col: {}".format(val,col))
-                    # col[0] = 255 if col[0] > 255 else col[0]
-                    # col[1] = 255 if col[1] > 255 else col[1]
-                    # col[2] = 255 if col[2] > 255 else col[2]
-                    # col = tuple(col)
-                    # print("Val: {} Col: {}".format(val,col))
-                    # print("-"*50)
-                    # col = wheel(pNum)
-                    # col = (0,0,255* (val/100))
                     if val != 0:
                         self.pixels[pNum] = col
-                        # print("set pixel {} to {}".format(pNum,col))
                     else:
-                        # pixels[pNum] = (0,0,0)
                         self.fadeToBlack(pNum)
 
             count = 0
             for x in audio_channels:
                 if x != 0:
                     count += 1
-            # if( count > 0):
-            # print("Set {} audio channels of {}".format(count,len(audio_channels)))
-            # print(audio_channels)
-            # print(pixels)
+
             testLine = ""
             for i in range(len(audio_channels)):
                 testLine += str(audio_channels[i]).zfill(2) + "|"
-            # print(testLine)
-            # print()
+
             count = 0
             for x in self.pixels:
                 if x != [0, 0, 0]:
                     count += 1
 
-            print(
-                "Set {} pixels of {} -- groupings of {}".format(
-                    count, self.pixelCount_nobottom, chan_led_width
-                )
-            )
             self.pixels.show()
-            # sleep(0.01)
+        else:
+            print("No Audio data in")
 
     def visualise(self):
         with sd.InputStream(
-            device=0,
+            device=self.deviceID,
             channels=1,
             callback=self.visualiseAudio,
             blocksize=int(self.samplerate * 50 / 1000),
@@ -187,17 +153,6 @@ class Aurora_AudioSpectogram(AuroraExtension):
         ):
             # running stream
             sd.wait()
-        # if(self.streamstarted == False):
-
-        #     self.streamstarted = True
-        #     self.startAudioStream()
-        # print("started")
-        # #myrecording = sd.rec(device=0, channels=1,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate)
-        # myrecording = sd.rec(int(self.samplerate * 50 / 1000),channels=1,samplerate=self.samplerate)
-        # self.visualiseAudio(myrecording)
-        # print("finished")
-        # #with sd.InputStream(device=0, channels=1, callback=self.callback,blocksize=int(self.samplerate * 50 / 1000),samplerate=self.samplerate):
-        #     #visualise!
-
+        
         time.sleep(0.01)
-        # print("{} : {}".format(self.Name,self.count))
+        

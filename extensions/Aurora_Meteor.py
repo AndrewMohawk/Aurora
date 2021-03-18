@@ -57,10 +57,10 @@ class Aurora_Meteor(AuroraExtension):
         if self.count >= self.pixelsCount + self.meteorSize:
             end = time.time()
             diff = end - self.startTime
-            print("Elapsed time for {}: {}".format(self.count, diff))
+            #print("Elapsed time for {}: {}".format(self.count, diff))
             self.startTime = time.time()
             self.count = 0
             self.currentCol = (randint(0, 255), randint(0, 255), randint(0, 255))
-        print("{} / {}".format(self.count, (self.pixelsCount + self.meteorSize)))
+        # print("{} / {}".format(self.count, (self.pixelsCount + self.meteorSize)))
         # time.sleep(0.01)
         # print("{} : {}".format(self.Name,self.count))

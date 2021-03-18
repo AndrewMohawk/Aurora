@@ -4,10 +4,6 @@ function fetch_config_data() {
   ajax_send_data["pixelcount_right"] = $('#aurora_configure_right').val()
   ajax_send_data["pixelcount_top"] = $('#aurora_configure_top').val()
   ajax_send_data["pixelcount_bottom"] = $('#aurora_configure_bottom').val()
-  // ajax_send_data["hdmi_saturation"] = $('#hdmi_saturation').val()
-  // ajax_send_data["hdmi_hue"] = $('#hdmi_hue').val()
-  // ajax_send_data["hdmi_brightness"] = $('#hdmi_brightness').val()
-  // ajax_send_data["hdmi_contrast"] = $('#hdmi_contrast').val()
   ajax_send_data["hdmi_gamma"] = $('#hdmi_gamma').val()
   return ajax_send_data
 }
@@ -20,24 +16,6 @@ $('#aurora_configure_save_button').on("click", function (event) {
     reload_pixel_image();
     create_snackbar("Pixel Configuration", "Successfully saved system config", "success")
   }
-  // ajax_response = make_AJAX_Call("")
-
-  // currentRequest = $.ajax({
-  //   type: "POST",
-  //   url: "/update_LED_config",
-  //   data: JSON.stringify(ajax_send_data),
-  //   contentType: 'application/json',
-  //   dataType: 'json',
-  //   success: function(data) {
-  //       location.reload()
-  //   },
-  //   beforeSend : function()    {           
-  //       if(currentRequest != null) {
-  //           currentRequest.abort();
-  //       }
-  //   },
-  //   });
-
 });
 
 
@@ -72,6 +50,15 @@ function save_hdmi_image()
     reload_hdmi_image();
   }
 }
+
+function reloadImages() {
+  make_AJAX_Call("/screenshot/", {})
+  d = new Date();
+  $("#image_screenshot").attr("src", "/load_screenshot?" + d.getTime());
+  $("#image_pixels").attr("src", "/load_pixel_image?" + d.getTime());
+  secondsBeforeReload = 5;
+}
+
 function setHDMIValues()
 {
   ajax_send_data = fetch_config_data()
@@ -81,17 +68,6 @@ function setHDMIValues()
     reload_hdmi_image();
   }
 }
-// function reset_hdmi_value(brightness_default,sat_default,contrast_default,hue_default,hue_gamma) 
-// {
-  
-//   $('#hdmi_saturation').slider('setValue',sat_default)
-//   $('#hdmi_brightness').slider('setValue',brightness_default)
-//   $('#hdmi_contrast').slider('setValue',contrast_default)
-//   $('#hdmi_hue').slider('setValue',hue_default)
-//   $('#hdmi_gamma').slider('setValue',hue_gamma)
-//   setHDMIValues()
-  
-// }
 function reset_gamma(hue_gamma)
 {
   $('#hdmi_gamma').slider('setValue',hue_gamma)

@@ -26,7 +26,7 @@ class AuroraExtension:
         self.FPS_avg = 0
         self.FPS_start_time = 0
 
-        self.debug = False
+        self.debug = bool(os.environ["AURORA_DEBUG"])
         self.noHDMI = False
 
         self.pixels = NeoPixels
@@ -199,6 +199,7 @@ class AuroraExtension:
         return cv2.LUT(image, table)
 
     def getFrame(self, video=True):
+        
         self.FPS_count += 1
         time_diff_fps = time.time() - self.FPS_start_time
         if time_diff_fps >= 1:
@@ -206,25 +207,18 @@ class AuroraExtension:
             self.FPS_avg = self.FPS_count
             self.FPS_start_time = time.time()
             self.FPS_count = 0
-
+        
         if video == True:
             # Capture the video frame
-
             ret, frame = self.vid.read()
-            # print("Frame {}".format(frame))
-            # hsvImg = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-            # # multiple by a factor to change the saturation
-            # hsvImg[..., 1] = hsvImg[..., 1] * 1.4
-
-            # # multiple by a factor of less than 1 to reduce the brightness
-            # hsvImg[..., 2] = hsvImg[..., 2] * 0.6
-
-            # frame = cv2.cvtColor(hsvImg, cv2.COLOR_HSV2BGR)
-            frame = self.adjust_gamma(frame, 2)
+            if(ret == False):
+                print("We cannot connect to video device anymore, hopefully restarting..")
+                os._exit(1)
+            else:
+                frame = self.adjust_gamma(frame, 2)
             return [ret, frame]
-
-        return True
+        
+        return [False,False]
 
     def autocrop(self, image, threshold=0):
         """Crops any edges below or equal to threshold
@@ -247,6 +241,7 @@ class AuroraExtension:
         return image
 
     def takeScreenShot(self, filepath):
+
         ret, self.current_frame = self.getFrame()
 
         # rgbVivid = hsv2rgb(rgb2hsv(self.current_frame) .* cat(3, 1, 2, 1))
@@ -290,6 +285,9 @@ class AuroraExtension:
         )
         cv2.imwrite(filepath, screenshot_frame)
 
+        print("-"*50)
+        print("Saved from lib base extension!")
+
         return True
 
     # def takeScreenShot(self, filepath):
@@ -314,10 +312,11 @@ class AuroraExtension:
     #     # cv.destroyAllWindows()
 
     def log(self, log_string, error=False):
+        print("logging err: {} debug: {} with {} ".format(error,self.debug,log_string))
         if error == True:
-            logging.error("{}".format(log_string))
+            logging.error("{} : {}".format(self.Name,log_string))
         elif self.debug == True:
-            logging.debug("DEBUG--{}".format(log_string))
+            logging.debug("DEBUG {} : {}".format(self.Name,log_string))
 
     # This class runs the visualisation (mandatory)
     def visualise(self):

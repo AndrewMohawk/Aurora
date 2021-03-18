@@ -26,10 +26,8 @@ class Aurora_Configure(AuroraExtension):
         # Capture the video frame
         ret, self.current_frame = self.getFrame()
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape
-        # print("*"*50)
-        # print("VIS: LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{} TotalPixels: {}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom,self.pixelsCount))
         pos = 0
-        # Left pixels
+        
         colour = (255, 0, 0)  # red
 
         for i in range(pos, pos + self.pixelsLeft):
@@ -45,12 +43,12 @@ class Aurora_Configure(AuroraExtension):
         colour = (0, 0, 255)  # blue
         for y in range(pos, pos + self.pixelsRight):
             self.pixels[y] = colour
-        # print(y)
+        
         pos = pos + self.pixelsRight
-        # print("Pos:{} of {}".format(pos,self.pixelsCount))
+        
         colour = (255, 255, 255)  # white
         for z in range(pos, pos + self.pixelsBottom):
             self.pixels[z] = colour
-        # print(z)
+        
 
         self.pixels.show()

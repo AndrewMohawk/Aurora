@@ -53,10 +53,12 @@ class AuroraManager:
             format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p"
         )
         self.debug = bool(os.environ["AURORA_DEBUG"])
-
+        print("DEBUG OS ENV: {} status: {}".format(os.environ["AURORA_DEBUG"],bool(os.environ["AURORA_DEBUG"])))
         if self.debug == True:
+            print("SET DEBUG ON")
             logging.getLogger().setLevel(logging.DEBUG)
         else:
+            print("SET DEBUG OFF")
             logging.getLogger().setLevel(logging.ERROR)
 
         # Setup NeoPixels
@@ -83,10 +85,11 @@ class AuroraManager:
             sys.exit(1)
 
     def setupHDMI(self):
+        self.vid = False
         # Setup HDMI input
         try:
             # Try Setup Video Capture devices
-            for i in range(0, 20):
+            for i in range(0, 10):
                 self.log("Trying video device {}.".format(i))
                 testVid = cv2.VideoCapture(i)
                 test, frame = testVid.read()
@@ -95,8 +98,11 @@ class AuroraManager:
                     self.log("Using video device {}.".format(i))
                     self.vid.set(cv2.CAP_PROP_SATURATION, 255)
                     break
+                else:
+                    print("device {} failed".format(i))
             if self.vid == False:
                 self.log("Failed to initialise video device")
+                sys.exit(1)
 
             self.vid.set(cv2.CAP_PROP_BUFFERSIZE, 2)
             self.vid_w = int(self.vid.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -144,15 +150,7 @@ class AuroraManager:
                 cv2.CAP_PROP_CONTRAST, int(self.config["HDMI"]["HDMI_CONTRAST"])
             )
             self.vid.set(cv2.CAP_PROP_HUE, int(self.config["HDMI"]["HDMI_HUE"]))
-            # self.log(
-            #     "Brightness:{} Saturation: {} Contrast: {} Hue: {}".format(
-            #         int(self.vid.get(cv2.CAP_PROP_BRIGHTNESS)),
-            #         int(self.vid.get(cv2.CAP_PROP_SATURATION)),
-            #         int(self.vid.get(cv2.CAP_PROP_CONTRAST)),
-            #         int(self.vid.get(cv2.CAP_PROP_HUE)),
-            #     )
-            # )
-            # sys.exit(1)
+
 
         except Exception as e:
             # Lets not get here chaps.
@@ -177,6 +175,7 @@ class AuroraManager:
         # Lets load the enviroment variables
         for key, val in self.config["AURORA"].items():
             os.environ[key] = val
+            print("setting key {} to {}".format(key,val))
 
         # Setup extensions dir
         self.extensions_dir = self.config["EXTENSIONS"]["directory"]
@@ -243,7 +242,7 @@ class AuroraManager:
             if filename.startswith("__"):
                 continue
 
-            if filename not in ["exampleExtension", "Aurora_Configure"]:
+            if filename not in ["exampleExtension2", "Aurora_Configure"]:
                 x = self.getExtensionClass(filename, extension_dir)
                 if x != False:
                     extension_meta = self.fetchMeta(x, filename)
@@ -332,9 +331,8 @@ class Aurora_Webserver(object):
             githubURL = (
                 "https://raw.githubusercontent.com/AndrewMohawk/Aurora/master/VERSION"
             )
-            github_version = "0.2"
             github_page = urlopen(githubURL)
-            github_version = strip(github_page.read())
+            github_version = github_page.read().decode('utf-8').strip()
 
         except Exception as e:
             self.manager.log("Exception trying to open github page:{}".format(str(e)))
@@ -428,11 +426,13 @@ class Aurora_Webserver(object):
     def configure(self):
         if self.manager.enabled == False:  # Its turned off, we need it on to config
             self.manager.enabled = True
-        tmpl = env.get_template("configure.html")
         self.manager.setCurrentExtension("Aurora_Configure")
+        #self.manager.setCurrentExtension("Aurora_Ambient_AutoCrop")
         self.manager.extension_started = False  # so it doesnt loop visualise
         self.manager.current_extension.visualise()
         self.screenshot()
+
+        tmpl = env.get_template("configure.html")
         template_variables = {}
         template_variables["pixels_left"] = self.manager.current_extension.pixelsLeft
         template_variables["pixels_right"] = self.manager.current_extension.pixelsRight
@@ -663,14 +663,6 @@ class Aurora_Webserver(object):
     @cherrypy.expose
     def load_screenshot(self, **params):
         screenshot_path = self.manager.screenshot_path
-        print(
-            "hdmi state:{} enabled:{} vid_h:{} vid_w: {}".format(
-                self.manager.current_extension.noHDMI,
-                self.manager.enabled,
-                self.manager.current_extension.vid_h,
-                self.manager.current_extension.vid_w,
-            )
-        )
         # Its not enabled, it doesnt use HDMI or its got a 1x1 image (ie nothing on)
         if (
             self.manager.enabled == False
@@ -747,7 +739,7 @@ if __name__ == "__main__":
 
     while True:
         AuroraManager.loop()
-        time.sleep(0.001)
+        time.sleep(0.01)
 
     """
     currentExtensionName = os.environ["AURORA_CURRENT_EXTENSION"]

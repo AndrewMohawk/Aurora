@@ -22,6 +22,10 @@ $(document).ready(function(){
     //ADD YOUR CUSTOM JAVASCRIPT CODES HERE! 
     //Do not put inside HTML files.
     //The init_template() function will be triggered when pages open.
+  
+  
+
+
 	function init_template(){        
         
         $("#hdmi_hue, #hdmi_saturation,#hdmi_brightness,#hdmi_contrast,#hdmi_gamma").slider({
