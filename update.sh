@@ -49,7 +49,7 @@ if [ -d .git ]; then
         "
     echo "Complete. You can now browse to the web interface to configure any changes you may need."
     localip=$(hostname -I)
-    echo "This will likely be: http://$localip/"
+    echo "This will likely be: http://$localip"
 
 else
     echo "This install directory ($INSTALLDIR) is *NOT* a git repo."
