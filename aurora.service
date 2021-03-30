@@ -1,11 +1,14 @@
 [Unit]
 Description=Aurora light system
 After=multi-user.target
+StartLimitInterval=200
+StartLimitBurst=5
 [Service]
-WorkingDirectory=/home/pi/Aurora/
+WorkingDirectory=/opt/Aurora/
 User=root
 Type=idle
 ExecStart=/usr/bin/sudo /usr/bin/python3 Aurora.py 2>&1 > /var/log/Aurora.log 
 Restart=always
+RestartSec=30
 [Install]
 WantedBy=multi-user.target
