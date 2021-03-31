@@ -7,7 +7,7 @@ $(document).ready(function(){
     'use strict'	
     
     /*Global Settings*/
-    var isAJAX = true; //Enables or disable AJAX page transitions and loading.
+    var isAJAX = false; //Enables or disable AJAX page transitions and loading.
     var isDevMode = false; // Enables development mode. Clean cache & Stops BG & Highlights from changing defaults and adds reload button for PWA refresh
     
     /*PWA Settings*/

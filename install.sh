@@ -45,9 +45,9 @@ systemctl start aurora.service
 echo "[+] Service Status"
 echo "------------------------------"
 echo "Aurora status: `systemctl is-active aurora.service`"
-echo "[+] Last 20 lines of syslog"
+echo "[+] Last 20 lines of aurora log"
 echo "------------------------------"
-sudo tail -n 20 /var/log/syslog
+journalctl -u aurora -n 20 --no-pager
 echo -e "
  ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ 
 (___|___|___|___|___|___|___|___|___|___|___|___)
