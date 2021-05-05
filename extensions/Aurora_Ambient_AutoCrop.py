@@ -72,24 +72,34 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
 
         # Populate LEDs
         startPoint = 0
+        
         for i in range(self.pixelsLeft):
-            B, G, R = resizedLeft[i][0]
+            B,G,R = (0,0,0)
+            if(np.mean(resizedLeft[i][0]) > 50):
+                B, G, R = resizedLeft[i][0]
             self.pixels[self.pixelsLeft - (startPoint + i)-1] = (R, G, B)
 
         startPoint += self.pixelsLeft
         for i in range(self.pixelsTop):
-            B, G, R = resizedTop[0][i]
+            B,G,R = (0,0,0)
+            if(np.mean(resizedTop[0][i]) > 50):
+                B, G, R = resizedTop[0][i]
             self.pixels[startPoint + i] = (R, G, B)
 
         startPoint += self.pixelsTop
         for i in range(self.pixelsRight):
-            B, G, R = resizedRight[i][0]
+            B,G,R = (0,0,0)
+            if(np.mean(resizedRight[i][0]) > 50):
+                B, G, R = resizedRight[i][0]
             self.pixels[startPoint + i] = (R, G, B)
 
         startPoint += self.pixelsRight
 
         for i in range(self.pixelsBottom):
-            B, G, R = resizedBottom[0][i]
+            B,G,R = (0,0,0)
+            if(np.mean(resizedBottom[0][i]) > 50):
+                B, G, R = resizedBottom[0][i]
+
             self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
        
         

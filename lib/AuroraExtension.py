@@ -215,7 +215,7 @@ class AuroraExtension:
                 print("We cannot connect to video device anymore, hopefully restarting..")
                 os._exit(1)
             else:
-                frame = self.adjust_gamma(frame, 2)
+                frame = self.adjust_gamma(frame, self.gamma)
             return [ret, frame]
         
         return [False,False]

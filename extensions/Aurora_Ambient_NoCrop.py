@@ -42,8 +42,6 @@ class Aurora_Ambient_NoCrop(AuroraExtension):
         heightPixels = int(self.vid_h * (self.percent / 100) * 2) + 1
 
         colour = (0, 0, 255)
-
-        print("h:{} w:{}".format(heightPixels, self.vid_w))
         # top
         screenshot_frame = cv2.rectangle(
             screenshot_frame, (0, 0), (self.vid_w, heightPixels), (0, 0, 255), 1
