@@ -49,4 +49,3 @@ class Aurora_Rainbow(AuroraExtension):
             self.count = 0
 
         time.sleep(0.01)
-        # print("{} : {}".format(self.Name,self.count))

@@ -22,10 +22,10 @@ class Aurora_AudioSpectogram(AuroraExtension):
         self.gain = 10
         self.low = 10
         self.high = 2500
-        #Lets find the right device
-        self.deviceID = sd.default.device['input']
-        
-        print("Starting Audio spectogram with Device {}".format(self.deviceID))
+        # Lets find the right device
+        self.deviceID = sd.default.device["input"]
+
+        self.log("Starting Audio spectogram with Device {}".format(self.deviceID))
         self.samplerate = sd.query_devices(self.deviceID, "input")["default_samplerate"]
         self.delta_f = (self.high - self.low) / (self.columns - 1)
         self.fftsize = math.ceil(self.samplerate / self.delta_f)
@@ -56,7 +56,7 @@ class Aurora_AudioSpectogram(AuroraExtension):
 
     def teardown(self):
         # incase things need to be broken down
-        print("Tearing down {}".format(self.Name))
+        self.log("Tearing down {}".format(self.Name))
         self.fade_out_pixels()
         sd.stop()
 
@@ -92,7 +92,7 @@ class Aurora_AudioSpectogram(AuroraExtension):
 
     def visualiseAudio(self, indata, frames, time, status):
         if any(indata):
-            
+
             magnitude = np.abs(np.fft.rfft(indata[:, 0], n=self.fftsize))
             magnitude *= self.gain / self.fftsize
             audio_channels = []
@@ -141,7 +141,7 @@ class Aurora_AudioSpectogram(AuroraExtension):
 
             self.pixels.show()
         else:
-            print("No Audio data in")
+            self.log("No Audio data in")
 
     def visualise(self):
         with sd.InputStream(
@@ -153,6 +153,5 @@ class Aurora_AudioSpectogram(AuroraExtension):
         ):
             # running stream
             sd.wait()
-        
+
         time.sleep(0.01)
-        

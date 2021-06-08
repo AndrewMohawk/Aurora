@@ -48,7 +48,7 @@ class AuroraExtension:
             self.log(
                 "Error during initialisation of {}:{}".format(self.Name, str(e)), True
             )
-            print("Error during initialisation of {}:{}".format(self.Name, str(e)))
+
             sys.exit(1)
 
     def fade_out_pixels(self):
@@ -81,15 +81,14 @@ class AuroraExtension:
 
     # Setup LEDs and Capture
     def setup(self):
-        print("Setting Up {}".format(self.Name))
+        self.log("Setting Up {}".format(self.Name))
 
     def teardown(self):
         # incase things need to be broken down
-        print("Tearing down {}".format(self.Name))
+        self.log("Tearing down {}".format(self.Name))
         self.fade_out_pixels()
 
     def makePixelFrame(self, filepath):
-        # print("LeftPixels:{} RightPixels:{} TopPixels:{} BottomPixels:{}".format(self.pixelsLeft,self.pixelsRight,self.pixelsTop,self.pixelsBottom))
         if self.pixels != False:
             pixel_size = 15
             pixel_size_skew = pixel_size * 2
@@ -184,7 +183,7 @@ class AuroraExtension:
                 pixelImage = cv2.resize(pixelImage, dim, interpolation=cv2.INTER_AREA)
 
             cv2.imwrite(filepath, pixelImage)
-            self.log("Saved PixelImage")
+            # self.log("Saved PixelImage")
         else:
             self.log("Pixels not available, no image saved")
 
@@ -199,26 +198,28 @@ class AuroraExtension:
         return cv2.LUT(image, table)
 
     def getFrame(self, video=True):
-        
+
         self.FPS_count += 1
         time_diff_fps = time.time() - self.FPS_start_time
         if time_diff_fps >= 1:
-            # self.log("--- FPS: {} ---".format(self.FPS_count))
             self.FPS_avg = self.FPS_count
             self.FPS_start_time = time.time()
             self.FPS_count = 0
-        
+
         if video == True:
             # Capture the video frame
             ret, frame = self.vid.read()
-            if(ret == False):
-                print("We cannot connect to video device anymore, hopefully restarting..")
+            if ret == False:
+                self.log(
+                    "We cannot connect to video device anymore, hopefully restarting.."
+                )
                 os._exit(1)
-            else:
+            # TODO: Gamma evaluation -- this slows stuff down, I'm not sure we need it.
+            elif self.gamma > 1:
                 frame = self.adjust_gamma(frame, self.gamma)
             return [ret, frame]
-        
-        return [False,False]
+
+        return [False, False]
 
     def autocrop(self, image, threshold=0):
         """Crops any edges below or equal to threshold
@@ -240,13 +241,16 @@ class AuroraExtension:
 
         return image
 
-    def takeScreenShot(self, filepath):
-
+    def takeScreenShot(self, filepath, autocrop=False):
+        # logging.info("Taking Screenshot in Aurora Extension")
         ret, self.current_frame = self.getFrame()
+        screenshot_frame = self.current_frame
 
-        # rgbVivid = hsv2rgb(rgb2hsv(self.current_frame) .* cat(3, 1, 2, 1))
-        screenshot_frame = self.autocrop(self.current_frame)
+        if autocrop != False:
+            screenshot_frame = self.autocrop(self.current_frame, autocrop)
+            # logging.info(f"Cropped Screenshot to {screenshot_frame.shape}")
 
+        self.vid_h, self.vid_w, self.channels = screenshot_frame.shape
         widthPixels = int(self.vid_w * (self.percent / 100)) + 1
         heightPixels = int(self.vid_h * (self.percent / 100) * 2) + 1
 
@@ -278,45 +282,15 @@ class AuroraExtension:
             1,
         )
 
-        print(
-            "saved screenshot of size {} x {} to {}".format(
-                widthPixels, heightPixels, filepath
-            )
-        )
         cv2.imwrite(filepath, screenshot_frame)
-
-        print("-"*50)
-        print("Saved from lib base extension!")
 
         return True
 
-    # def takeScreenShot(self, filepath):
-
-    #     # Create a black image
-    #     img = np.zeros((512, 512, 3), np.uint8)
-
-    #     # Draw a diagonal blue line with thickness of 5 px
-    #     img = cv2.line(img, (0, 0), (511, 511), (255, 0, 0), 5)
-
-    #     img = cv2.rectangle(img, (384, 0), (510, 128), (0, 255, 0), 3)
-    #     img = cv2.circle(img, (447, 63), 63, (0, 0, 255), -1)
-    #     img = cv2.ellipse(img, (256, 256), (100, 50), 0, 0, 180, 255, -1)
-    #     pts = np.array([[10, 5], [20, 30], [70, 20], [50, 10]], np.int32)
-    #     pts = pts.reshape((-1, 1, 2))
-    #     img = cv2.polylines(img, [pts], True, (0, 255, 255))
-    #     font = cv2.FONT_HERSHEY_SIMPLEX
-    #     cv2.putText(img, "OpenCV", (10, 500), font, 4, (255, 255, 255), 2, cv2.LINE_AA)
-    #     cv2.imwrite(filepath, img)
-    #     self.log("Saved Screenshot")
-    #     # cv.waitKey(0)
-    #     # cv.destroyAllWindows()
-
     def log(self, log_string, error=False):
-        print("logging err: {} debug: {} with {} ".format(error,self.debug,log_string))
         if error == True:
-            logging.error("{} : {}".format(self.Name,log_string))
+            logging.error("{} : {}".format(self.Name, log_string))
         elif self.debug == True:
-            logging.debug("DEBUG {} : {}".format(self.Name,log_string))
+            logging.debug("DEBUG {} : {}".format(self.Name, log_string))
 
     # This class runs the visualisation (mandatory)
     def visualise(self):

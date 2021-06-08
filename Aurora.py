@@ -53,12 +53,15 @@ class AuroraManager:
             format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p"
         )
         self.debug = bool(os.environ["AURORA_DEBUG"])
-        print("DEBUG OS ENV: {} status: {}".format(os.environ["AURORA_DEBUG"],bool(os.environ["AURORA_DEBUG"])))
+        logging.info(
+            "DEBUG OS ENV: {} status: {}".format(
+                os.environ["AURORA_DEBUG"], bool(os.environ["AURORA_DEBUG"])
+            )
+        )
         if self.debug == True:
-            print("SET DEBUG ON")
             logging.getLogger().setLevel(logging.DEBUG)
         else:
-            print("SET DEBUG OFF")
+            logging.info("SET DEBUG OFF")
             logging.getLogger().setLevel(logging.ERROR)
 
         # Setup NeoPixels
@@ -75,7 +78,10 @@ class AuroraManager:
 
     def setupNeoPixels(self):
         try:
-            self.neoPixels = neopixel.NeoPixel(board.D18, 999, auto_write=False)
+            # this is janky and show() speed is impacted by the number of pixels, but we cant re-init this :(
+            self.neoPixels = neopixel.NeoPixel(board.D18, 500, auto_write=False)
+            self.neoPixels.fill((0, 0, 0))  # turn them off when we initialise
+            self.neoPixels.show()  # ironic.
         except Exception as e:
             # Lets not get here chaps.
             self.log(
@@ -99,7 +105,7 @@ class AuroraManager:
                     self.vid.set(cv2.CAP_PROP_SATURATION, 255)
                     break
                 else:
-                    print("device {} failed".format(i))
+                    logging.error("device {} failed".format(i))
             if self.vid == False:
                 self.log("Failed to initialise video device")
                 sys.exit(1)
@@ -151,10 +157,8 @@ class AuroraManager:
             )
             self.vid.set(cv2.CAP_PROP_HUE, int(self.config["HDMI"]["HDMI_HUE"]))
 
-
         except Exception as e:
             # Lets not get here chaps.
-            print("Error during initialisation of HDMI:{}".format(str(e)))
             self.log("Error during initialisation of HDMI:{}".format(str(e)))
             sys.exit(1)
 
@@ -175,7 +179,7 @@ class AuroraManager:
         # Lets load the enviroment variables
         for key, val in self.config["AURORA"].items():
             os.environ[key] = val
-            print("setting key {} to {}".format(key,val))
+            self.log("setting key {} to {}".format(key, val))
 
         # Setup extensions dir
         self.extensions_dir = self.config["EXTENSIONS"]["directory"]
@@ -332,7 +336,7 @@ class Aurora_Webserver(object):
                 "https://raw.githubusercontent.com/AndrewMohawk/Aurora/master/VERSION"
             )
             github_page = urlopen(githubURL)
-            github_version = github_page.read().decode('utf-8').strip()
+            github_version = github_page.read().decode("utf-8").strip()
 
         except Exception as e:
             self.manager.log("Exception trying to open github page:{}".format(str(e)))
@@ -427,7 +431,7 @@ class Aurora_Webserver(object):
         if self.manager.enabled == False:  # Its turned off, we need it on to config
             self.manager.enabled = True
         self.manager.setCurrentExtension("Aurora_Configure")
-        #self.manager.setCurrentExtension("Aurora_Ambient_AutoCrop")
+        # self.manager.setCurrentExtension("Aurora_Ambient_AutoCrop")
         self.manager.extension_started = False  # so it doesnt loop visualise
         self.manager.current_extension.visualise()
         self.screenshot()
@@ -717,6 +721,11 @@ if __name__ == "__main__":
                 "tools.staticdir.on": True,
                 "tools.staticdir.dir": "./webserver/static",
             },
+            "/favicon.ico": {
+                "tools.staticfile.on": True,
+                "tools.staticfile.filename": os.path.abspath(os.getcwd())
+                + "/webserver/static/favicon/favicon.ico",
+            },
         }
 
         cherrypy.config.update(
@@ -735,24 +744,11 @@ if __name__ == "__main__":
         cherrypy.config.update({"engine.autoreload.on": False})
 
         cherrypy.tree.mount(Aurora_Webserver(AuroraManager), "/", conf)
+
         cherrypy.engine.start()
 
     while True:
         AuroraManager.loop()
-        time.sleep(0.01)
+        time.sleep(0.001)
 
-    """
-    currentExtensionName = os.environ["AURORA_CURRENT_EXTENSION"]
-    currentExtension = loadCurrentExtension(currentExtensionName)
-
-    while(True):
-        print("{}".format(os.environ["AURORA_CURRENT_EXTENSION"]))
-        if(os.environ["AURORA_CURRENT_EXTENSION"] != currentExtensionName):
-            #we changed to a diff thing
-            print("WOW IT CHANGED")
-            currentExtensionName = os.environ["AURORA_CURRENT_EXTENSION"]
-            currentExtension = loadCurrentExtension(currentExtensionName)
-
-        currentExtension.visualise()
-    """
     # do other work

@@ -27,7 +27,7 @@ class Aurora_Configure(AuroraExtension):
         ret, self.current_frame = self.getFrame()
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape
         pos = 0
-        
+
         colour = (255, 0, 0)  # red
 
         for i in range(pos, pos + self.pixelsLeft):
@@ -43,12 +43,11 @@ class Aurora_Configure(AuroraExtension):
         colour = (0, 0, 255)  # blue
         for y in range(pos, pos + self.pixelsRight):
             self.pixels[y] = colour
-        
+
         pos = pos + self.pixelsRight
-        
+
         colour = (255, 255, 255)  # white
         for z in range(pos, pos + self.pixelsBottom):
             self.pixels[z] = colour
-        
 
         self.pixels.show()

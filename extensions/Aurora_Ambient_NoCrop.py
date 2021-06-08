@@ -77,7 +77,7 @@ class Aurora_Ambient_NoCrop(AuroraExtension):
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape
 
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape
-        
+
         if self.vid_h <= 1 and self.vid_w <= 1:
             self.pixels.fill((0, 0, 0))
             self.pixels.show()
@@ -97,7 +97,7 @@ class Aurora_Ambient_NoCrop(AuroraExtension):
         sectionRight = self.current_frame[
             0 : self.vid_h, self.vid_w - widthPixels : self.vid_w
         ]
-        
+
         resizeTime = datetime.datetime.now()
         # get shape
         h, w, c = sectionTop.shape
@@ -121,7 +121,7 @@ class Aurora_Ambient_NoCrop(AuroraExtension):
         startPoint = 0
         for i in range(self.pixelsLeft):
             B, G, R = resizedLeft[i][0]
-            self.pixels[self.pixelsLeft - (startPoint + i)-1] = (R, G, B)
+            self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
 
         startPoint += self.pixelsLeft
         for i in range(self.pixelsTop):
