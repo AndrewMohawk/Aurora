@@ -105,13 +105,13 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         startPoint += self.pixelsRight
         for i in range(self.pixelsBottom):
             B, G, R = (0, 0, 0)
-            # if(any(val > self.darkThreshhold for val in resizedBottom[0][i])):
-            B, G, R = resizedBottom[0][i]
+            if(any(val > self.darkThreshhold for val in resizedBottom[0][i])):
+                B, G, R = resizedBottom[0][i]
             self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
 
         # self.log(f"DisplayTime: {datetime.datetime.now()-stopwatchStartTime}")
         # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
-        # self.pixels.show()
+        self.pixels.show()
 
         # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
         # self.log("----------------------")
