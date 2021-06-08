@@ -1,16 +1,27 @@
+[![Chat](https://img.shields.io/gitter/room/trunk-recorder/Lobby.svg)](https://gitter.im/AuroraAmbientLighting/community)
+
+![Aurora Example](https://github.com/AndrewMohawk/Aurora/raw/master/github/Aurora_Ambient_Light_test_video.gif)
+
 # Aurora
-Aurora Ambient LED project
+Aurora is an ambient light system built with an HDMI switch, and HDMI capture card, a Raspberry Pi and an LED strip. There is a full writeup of how this came to be at https://www.andrewmohawk.com/2021/05/25/aurora-ambient-lighting/ and a build guide at https://www.andrewmohawk.com/2021/05/24/aurora-how-to-build/
+
+# Help
+Feel free to submit PRs for the project to improve the code base or add your own visualisations. Please remember to update the VERSION when you are doing a new PR. If you *need* help with any part of the project feel free to email or you can join the gitter at https://gitter.im/AuroraAmbientLighting/community 
+
+# Extending
+While the documentation for extending and building your own hasnt been fully written up, the TL;DR is to copy the example extenion in the `extensions` folder, change the metadata and restart Aurora with `sudo service aurora restart`, once it has picked up the new file you can simply make changes and then click load extension in the main interface. 
+
+Please note when changing your `visualise` function you need to make it non-locking or the interface will not be able to communicate with it. The interface will pause for 0.01s before running visualise() again between each run
 
 # Install
-pip3 install -r requirements
-sudo apt install libjasper1 libatlas-base-dev libqtgui4 libqt4-test
+The install for this requires a hardware and software setup. You can follow the install guide at https://www.andrewmohawk.com/2021/05/24/aurora-how-to-build/ 
 
-# Run
-sudo LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1 python3 pixelcam.py 
-(or without the preload if the bug is fixed)
+The flow diagram looks as follows:
+![Aurora Flow diagram](https://www.andrewmohawk.com/wp-content/uploads/2021/05/Aurora-Flow-Diagram.png)
 
-# Bugs
-libatomic is currently not linked currectly in the latest version of openCV (at time of writing 4.1.1.26) so you may have to export
+For just grabbing the software you can use this one liner:
+```
+wget https://raw.githubusercontent.com/AndrewMohawk/Aurora/master/install.sh -O - | /bin/bash
+```
 
-export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
-(bug from https://github.com/piwheels/packages/issues/59)
+
