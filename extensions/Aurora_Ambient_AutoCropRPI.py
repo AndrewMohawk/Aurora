@@ -4,9 +4,9 @@ import datetime
 import numpy as np
 import pandas as pd
 import cv2
+from rpi_ws281x import PixelStrip, Color
 
-
-class Aurora_Ambient_AutoCrop(AuroraExtension):
+class Aurora_Ambient_AutoCropRPI(AuroraExtension):
     def __init__(self, NeoPixels, HDMI):
         super().__init__(NeoPixels, HDMI)
         self.Author = "Andrew MacPherson (@AndrewMohawk)"
@@ -26,26 +26,24 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         return super().takeScreenShot(filepath, self.edgeDarkness)
 
     def visualise(self):
+        
         # Capture the video frame
-        # stopwatchStartTime = datetime.datetime.now()
-        # totalStartTime = stopwatchStartTime
+        #stopwatchStartTime = datetime.datetime.now()
+        #totalStartTime = stopwatchStartTime
         ret, self.current_frame = self.getFrame()
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape
-        # self.log(f"GetFrame: {datetime.datetime.now()-stopwatchStartTime}")
+        #self.log(f"GetFrame: {datetime.datetime.now()-stopwatchStartTime}")
 
-        # stopwatchStartTime = datetime.datetime.now()
-        self.current_frame = self.autocrop(self.current_frame, self.edgeDarkness)
-        # self.log(f"AutoCropTime: {datetime.datetime.now()-stopwatchStartTime}")
-
+        #stopwatchStartTime = datetime.datetime.now()
+        #self.current_frame = self.autocrop(self.current_frame, self.edgeDarkness)
+        #self.log(f"AutoCropTime: {datetime.datetime.now()-stopwatchStartTime}")
+        
         stopwatchStartTime = datetime.datetime.now()
         self.vid_h, self.vid_w, self.channels = self.current_frame.shape
-
+        
         if self.vid_h <= 1 and self.vid_w <= 1:
-            if len([pixel for pixel in self.pixels if pixel != (0, 0, 0)]) > 0:
-                self.pixels.fill((0, 0, 0))
-                self.pixels.show()
             return
-
+        
         widthPixels = int(self.vid_w * (self.percent / 100)) + 1
         heightPixels = int(self.vid_h * (self.percent / 100) * 2) + 1
 
@@ -68,7 +66,7 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         resizedBottom = cv2.resize(
             sectionBottom, (ws, hs), interpolation=cv2.INTER_AREA
         )
-
+        
         # get shape for sides
         h, w, c = sectionLeft.shape
         hs = self.pixelsLeft
@@ -81,36 +79,49 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         # stopwatchStartTime = datetime.datetime.now()
         # Populate LEDs
         startPoint = 0
-
+        
         for i in range(self.pixelsLeft):
             B, G, R = (0, 0, 0)
             # if(any(val > self.darkThreshhold for val in resizedLeft[i][0])):
             B, G, R = resizedLeft[i][0]
-            self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
-        startShowTime = datetime.datetime.now()
+            #self.log((R,G,B))
+            pos = self.pixelsLeft - (startPoint + i) - 1
+            
+            self.pixels.setPixelColor(pos,Color(int(R),int(G),int(B)))
+            
+            #self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
+        
+        #startShowTime = datetime.datetime.now()
         startPoint += self.pixelsLeft
+        
         for i in range(self.pixelsTop):
             B, G, R = (0, 0, 0)
             # if(any(val > self.darkThreshhold for val in resizedTop[0][i])):
             B, G, R = resizedTop[0][i]
-            self.pixels[startPoint + i] = (R, G, B)
+            self.pixels.setPixelColor(startPoint + i,Color(int(R),int(G),int(B)))
+            #self.pixels[startPoint + i] = (R, G, B)
 
         startPoint += self.pixelsTop
+        
         for i in range(self.pixelsRight):
             B, G, R = (0, 0, 0)
             # if(any(val > self.darkThreshhold for val in resizedRight[i][0])):
             B, G, R = resizedRight[i][0]
-            self.pixels[startPoint + i] = (R, G, B)
+            self.pixels.setPixelColor(startPoint + i,Color(int(R),int(G),int(B)))
+            #self.pixels[startPoint + i] = (R, G, B)
 
         startPoint += self.pixelsRight
+        
         for i in range(self.pixelsBottom):
             B, G, R = (0, 0, 0)
             if(any(val > self.darkThreshhold for val in resizedBottom[0][i])):
                 B, G, R = resizedBottom[0][i]
-            self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
+            self.pixels.setPixelColor(startPoint + i,Color(int(R),int(G),int(B)))
+            #self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
 
-        # self.log(f"DisplayTime: {datetime.datetime.now()-stopwatchStartTime}")
-        # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
+        #self.log(f"DisplayTime: {datetime.datetime.now()-stopwatchStartTime}")
+        #self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
+        
         self.pixels.show()
 
         # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")

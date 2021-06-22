@@ -34,6 +34,7 @@ class AuroraExtension:
         self.pixels.brightness = 1
 
         self.gamma = 1.0
+        self.frame = False
 
         # Aurora Specifics
         try:
@@ -61,8 +62,8 @@ class AuroraExtension:
 
             allout = True
             for z in range(0, self.pixelsCount):
-
-                if self.pixels[z] != [0, 0, 0]:
+                colour = (self.pixels.getPixelColorRGB(z).r,self.pixels.getPixelColorRGB(z).g,self.pixels.getPixelColorRGB(z).b)
+                if colour != (0, 0, 0):
                     allout = False
                     self.fadeToBlack(z)
 
@@ -71,13 +72,13 @@ class AuroraExtension:
 
     def fadeToBlack(self, pixelPos):
         fadeValue = 64
-        b, g, r = self.pixels[pixelPos]
+        b, g, r = (self.pixels.getPixelColorRGB(pixelPos).r,self.pixels.getPixelColorRGB(pixelPos).g,self.pixels.getPixelColorRGB(pixelPos).b)#self.pixels[pixelPos]
 
         r = 0 if r <= 10 else int(r - (r * fadeValue / 255))
         g = 0 if g <= 10 else int(g - (g * fadeValue / 255))
         b = 0 if b <= 10 else int(b - (b * fadeValue / 255))
-
-        self.pixels[pixelPos] = (b, g, r)
+        self.pixels.setPixelColorRGB(pixelPos,r,g,b)
+        #self.pixels[pixelPos] = (b, g, r)
 
     # Setup LEDs and Capture
     def setup(self):
@@ -86,7 +87,7 @@ class AuroraExtension:
     def teardown(self):
         # incase things need to be broken down
         self.log("Tearing down {}".format(self.Name))
-        self.fade_out_pixels()
+        #self.fade_out_pixels()
 
     def makePixelFrame(self, filepath):
         if self.pixels != False:
@@ -120,7 +121,8 @@ class AuroraExtension:
             ):  # -1 since this actually starts at 0 and goes to num-1
                 start = (top_x, start_coordinate)
                 end = (top_x + pixel_size_skew, start_coordinate + pixel_size)
-                colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
+                colour = (self.pixels.getPixelColorRGB(x).b,self.pixels.getPixelColorRGB(x).g,self.pixels.getPixelColorRGB(x).r)
+                #colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
                 pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
                 start_coordinate += pixel_size
 
@@ -130,7 +132,8 @@ class AuroraExtension:
             for x in range(self.pixelsLeft, self.pixelsLeft + self.pixelsTop):
                 start = (start_coordinate, top_y)
                 end = (start_coordinate + pixel_size, top_y + pixel_size_skew)
-                colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
+                #colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
+                colour = (self.pixels.getPixelColorRGB(x).b,self.pixels.getPixelColorRGB(x).g,self.pixels.getPixelColorRGB(x).r)
                 pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
                 start_coordinate += pixel_size
 
@@ -149,8 +152,9 @@ class AuroraExtension:
                     start_coordinate + pixel_size,
                 )
 
-                colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
-                color = (255, 0, 0)
+                #colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
+                colour = (self.pixels.getPixelColorRGB(x).b,self.pixels.getPixelColorRGB(x).g,self.pixels.getPixelColorRGB(x).r)
+                #color = (255, 0, 0)
                 pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
                 start_coordinate += pixel_size
 
@@ -172,7 +176,8 @@ class AuroraExtension:
                     start_coordinate + pixel_size,
                     top_y + (self.pixelsLeft * pixel_size) + pixel_size_skew,
                 )
-                colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
+                colour = (self.pixels.getPixelColorRGB(x).b,self.pixels.getPixelColorRGB(x).g,self.pixels.getPixelColorRGB(x).r)
+                #colour = (self.pixels[x][2], self.pixels[x][1], self.pixels[x][0])
                 pixelImage = cv2.rectangle(pixelImage, start, end, colour, -1)
                 start_coordinate += pixel_size
 
@@ -208,16 +213,19 @@ class AuroraExtension:
 
         if video == True:
             # Capture the video frame
+
             ret, frame = self.vid.read()
             if ret == False:
                 self.log(
                     "We cannot connect to video device anymore, hopefully restarting.."
                 )
-                os._exit(1)
-            # TODO: Gamma evaluation -- this slows stuff down, I'm not sure we need it.
-            elif self.gamma > 1:
-                frame = self.adjust_gamma(frame, self.gamma)
-            return [ret, frame]
+            elif ret == True:
+                self.frame = frame
+                #os._exit(1)
+                # TODO: Gamma evaluation -- this slows stuff down, I'm not sure we need it.
+                if self.gamma > 1:
+                    self.frame = self.adjust_gamma(self.frame, self.gamma)
+            return [ret, self.frame]
 
         return [False, False]
 

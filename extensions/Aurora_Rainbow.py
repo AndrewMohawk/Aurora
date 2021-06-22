@@ -4,7 +4,7 @@ import datetime
 import numpy as np
 import pandas as pd
 import cv2
-
+from rpi_ws281x import PixelStrip, Color
 
 class Aurora_Rainbow(AuroraExtension):
     def __init__(self, NeoPixels, HDMI):
@@ -31,12 +31,14 @@ class Aurora_Rainbow(AuroraExtension):
             pos -= 85
             return (0, 255 - pos * 3, pos * 3)
         pos -= 170
-        return (pos * 3, 0, 255 - pos * 3)
+        return pos * 3, 0, 255 - pos * 3
 
     def rainbow_cycle(self, j):
         for i in range(self.pixelsCount):
             rc_index = (i * 256 // self.pixelsCount) + j
-            self.pixels[i] = self.wheel(rc_index & 255)
+            #self.pixels[i] = self.wheel(rc_index & 255)
+            R,G,B = self.wheel(rc_index & 255)
+            self.pixels.setPixelColor(i,Color(int(R),int(G),int(B)))
         self.getFrame(False)  # hack to have 'FPS'
         self.pixels.show()
 
@@ -48,4 +50,4 @@ class Aurora_Rainbow(AuroraExtension):
         if self.count == 255:
             self.count = 0
 
-        time.sleep(0.01)
+        #time.sleep(0.01)
