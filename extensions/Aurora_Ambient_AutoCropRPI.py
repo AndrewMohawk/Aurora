@@ -35,7 +35,7 @@ class Aurora_Ambient_AutoCropRPI(AuroraExtension):
         #self.log(f"GetFrame: {datetime.datetime.now()-stopwatchStartTime}")
 
         #stopwatchStartTime = datetime.datetime.now()
-        #self.current_frame = self.autocrop(self.current_frame, self.edgeDarkness)
+        self.current_frame = self.autocrop(self.current_frame, self.edgeDarkness)
         #self.log(f"AutoCropTime: {datetime.datetime.now()-stopwatchStartTime}")
         
         stopwatchStartTime = datetime.datetime.now()
