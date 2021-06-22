@@ -10,6 +10,7 @@ spec.py
 nohup.out
 config.ini 
 config.ini.bak 
+LEDTests/
 
 
 # Byte-compiled / optimized / DLL files
