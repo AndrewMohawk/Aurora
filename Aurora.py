@@ -86,7 +86,6 @@ class AuroraManager:
             # Lets not get here chaps.
             self.log(
                 "Error during initialisation of NeoPixel:{}".format(str(e)),
-                True,
             )
             sys.exit(1)
 
@@ -316,7 +315,7 @@ class AuroraManager:
                 try:
                     self.current_extension.visualise()
                 except Exception as e:
-                    self.addMessage("Error in visualise: {}".format(str(e)))
+                    self.log("Error in visualise: {}".format(str(e)))
                 self.loopRunning = False
 
 
@@ -438,6 +437,7 @@ class Aurora_Webserver(object):
 
         tmpl = env.get_template("configure.html")
         template_variables = {}
+        template_variables["pixels_darkthreshold"] =  self.manager.current_extension.darkThreshhold
         template_variables["pixels_left"] = self.manager.current_extension.pixelsLeft
         template_variables["pixels_right"] = self.manager.current_extension.pixelsRight
         template_variables["pixels_top"] = self.manager.current_extension.pixelsTop
@@ -550,10 +550,21 @@ class Aurora_Webserver(object):
         pixelcount_right = self.manager.current_extension.pixelsRight
         pixelcount_top = self.manager.current_extension.pixelsTop
         pixelcount_bottom = self.manager.current_extension.pixelsBottom
+        pixel_darkthreshold = self.manager.current_extension.darkThreshhold
 
         configChange = False
 
         errors = []
+        if "darkthreshhold" in input_json:
+            try:
+                
+                dt = int(input_json["darkthreshhold"])
+                if(dt != pixel_darkthreshold):
+                    configChange = True
+                    pixel_darkthreshold = dt
+            except Exception as e:
+                errors.append(str(e))
+                pass  # whatever, you are doing bad things with input
 
         if "pixelcount_left" in input_json:
             try:
@@ -595,6 +606,7 @@ class Aurora_Webserver(object):
                 errors.append(str(e))
                 pass  # whatever, you are doing bad things with input
 
+
         pixelcount_total = (
             pixelcount_left + pixelcount_right + pixelcount_top + pixelcount_bottom
         )
@@ -627,10 +639,12 @@ class Aurora_Webserver(object):
                 self.manager.config.set(
                     "AURORA", "AURORA_PIXELCOUNT_TOTAL", str(pixelcount_total)
                 )
+                self.manager.config.set("AURORA","AURORA_DARKTHRESHOLD",str(pixel_darkthreshold))
                 self.manager.config.set("GENERAL", "configured", "True")
                 self.manager.saveConfig()
                 self.manager.addMessage("Saved config!")
             except Exception as e:
+                logging.error(str(e))
                 errors.append(str(e))
 
         if len(errors) == 0:

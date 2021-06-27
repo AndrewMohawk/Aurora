@@ -529,17 +529,7 @@ $(document).ready(function(){
             });
         }
 
-        //Stepper Add
-        $('.stepper-add').on('click',function(){
-            var num = +$(this).parent().find('input').val() + 1;
-            $(this).parent().find('input').val(num);
-            //return false;
-        });
-        $('.stepper-sub').on('click',function(){
-            var num = $(this).parent().find('input').val() - 1;
-            if(num >= 0){$(this).parent().find('input').val(num);}
-            //return false;
-        });
+        
 
         //Switches
         $('.ios-input, .android-input, .classic-input').on('click',function(){

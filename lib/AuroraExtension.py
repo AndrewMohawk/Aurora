@@ -31,6 +31,9 @@ class AuroraExtension:
 
         self.pixels = NeoPixels
 
+        self.darkThreshhold = 20  # this defines if we are gonna bother lighting up the pixels if they are below this threshold
+        # This is no longer used as it makes it noticably slower :(
+
         self.pixels.brightness = 1
 
         self.gamma = 1.0
@@ -43,6 +46,8 @@ class AuroraExtension:
             self.pixelsTop = int(os.environ["AURORA_PIXELCOUNT_TOP"])
             self.pixelsBottom = int(os.environ["AURORA_PIXELCOUNT_BOTTOM"])
             self.gamma = float(os.environ["AURORA_GAMMA"])
+            self.darkThreshhold =  int(os.environ["AURORA_DARKTHRESHOLD"])  # this defines if we are gonna bother lighting up the pixels if they are below this threshold
+        # This is no longer used as it makes it noticably slower :(
 
         except Exception as e:
             self.log(

@@ -1,5 +1,5 @@
 {% include 'header.html' %}
-<div class="card card-style">
+<div class="card card-style" style="max-width:40rem;">
     <div class="content mb-0">
         <p class="mb-n1 color-highlight font-600">Aurora</p>
         <h1>Pixel Configuration</h1>
@@ -7,6 +7,16 @@
             Your LED strip will be showing the colours depicted in the image below, look at the colours and configure
             the amount of LEDs per side accordingly, once you are happy hit save!
         </p>
+        <div class="row mb-1 text-center d-flex justify-content-center">
+            <div class="col-12 pl-5  justify-content-center text-center d-flex">Darkness threshold:&nbsp;
+                    <div class="stepper rounded-s display:block">
+                        <a href="#" class="stepper-sub"><i class="fa fa-minus color-red-dark"></i></a>
+                        <input type="number" id="aurora_config_darkthreshhold" min="1" max="250" value="{{pixels_darkthreshold}}">
+                        <a href="#" class="stepper-add"><i class="fa fa-plus color-green-dark"></i></a>
+                    </div>
+                
+            </div>
+        </div>
         <div class="row mb-1 text-center d-flex justify-content-center">
             <div class="col-4 ">
                 Left:
