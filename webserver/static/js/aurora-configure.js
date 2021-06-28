@@ -4,6 +4,7 @@ function fetch_config_data() {
   ajax_send_data["pixelcount_right"] = $('#aurora_configure_right').val()
   ajax_send_data["pixelcount_top"] = $('#aurora_configure_top').val()
   ajax_send_data["pixelcount_bottom"] = $('#aurora_configure_bottom').val()
+  ajax_send_data["darkthreshhold"] = $('#aurora_config_darkthreshhold').val()
   ajax_send_data["hdmi_gamma"] = $('#hdmi_gamma').val()
   return ajax_send_data
 }
@@ -19,14 +20,21 @@ $('#aurora_configure_save_button').on("click", function (event) {
 });
 
 
+//Stepper Add
+$('.stepper-add').on('click',function(){
+  var num = +$(this).parent().find('input').val() + 1;
+  $(this).parent().find('input').val(num);
+  //return false;
+});
+$('.stepper-sub').on('click',function(){
+  var num = $(this).parent().find('input').val() - 1;
+  if(num >= 0){$(this).parent().find('input').val(num);}
+  //return false;
+});
 
 $('.stepper-add, .stepper-sub').on("click", function (event) {
 
-  val = $(this).val()
-  id = $(this).attr("id")
-
   ajax_send_data = fetch_config_data()
-
   ajax_response = make_AJAX_Call("/update_LED_config", ajax_send_data);
   if (ajax_response["status"] == "ok") {
     reload_pixel_image();

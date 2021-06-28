@@ -19,8 +19,7 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         self.edgeDarkness = (
             5  # this defines the darkness that makes the edges for autocrop
         )
-        self.darkThreshhold = 20  # this defines if we are gonna bother lighting up the pixels if they are below this threshold
-        # This is no longer used as it makes it noticably slower :(
+        
 
     def takeScreenShot(self, filepath, autocrop=False):
         return super().takeScreenShot(filepath, self.edgeDarkness)
@@ -82,23 +81,17 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         # Populate LEDs
         startPoint = 0
 
-        for i in range(self.pixelsLeft):
-            B, G, R = (0, 0, 0)
-            # if(any(val > self.darkThreshhold for val in resizedLeft[i][0])):
+        for i in range(self.pixelsLeft):            
             B, G, R = resizedLeft[i][0]
             self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
         startShowTime = datetime.datetime.now()
         startPoint += self.pixelsLeft
         for i in range(self.pixelsTop):
-            B, G, R = (0, 0, 0)
-            # if(any(val > self.darkThreshhold for val in resizedTop[0][i])):
             B, G, R = resizedTop[0][i]
             self.pixels[startPoint + i] = (R, G, B)
 
         startPoint += self.pixelsTop
         for i in range(self.pixelsRight):
-            B, G, R = (0, 0, 0)
-            # if(any(val > self.darkThreshhold for val in resizedRight[i][0])):
             B, G, R = resizedRight[i][0]
             self.pixels[startPoint + i] = (R, G, B)
 
@@ -109,6 +102,9 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
                 B, G, R = resizedBottom[0][i]
             self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
 
+        for key,test_cols in enumerate(self.pixels):
+            if(all(val < self.darkThreshhold for val in test_cols)):
+               self.pixels[key] = (0,0,0)
         # self.log(f"DisplayTime: {datetime.datetime.now()-stopwatchStartTime}")
         # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
         self.pixels.show()
