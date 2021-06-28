@@ -21,7 +21,7 @@ The flow diagram looks as follows:
 
 For just grabbing the software you can use this one liner:
 ```
-wget https://raw.githubusercontent.com/AndrewMohawk/Aurora/master/install.sh -O - | /bin/bash
+wget https://raw.githubusercontent.com/AndrewMohawk/Aurora/master/install.sh -O - | sudo /bin/bash
 ```
 
 
