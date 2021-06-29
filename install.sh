@@ -41,6 +41,7 @@ pip3 install -r requirements.txt
 echo "[+] Installing Service"
 echo "------------------------------"
 cp aurora.service /etc/systemd/system
+systemctl enable aurora.service
 systemctl start aurora.service
 echo "[+] Service Status"
 echo "------------------------------"
