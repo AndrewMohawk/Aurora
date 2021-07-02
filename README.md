@@ -1,4 +1,4 @@
-[![Chat](https://img.shields.io/gitter/room/trunk-recorder/Lobby.svg)](https://gitter.im/AuroraAmbientLighting/community)
+[![Slack](https://img.shields.io/badge/slack-chat-green.svg)](https://join.slack.com/t/auroraambientlighting/shared_invite/zt-sib46ode-0rE3GqXFEcHd_H_y_nG~oA) 
 
 ![Aurora Example](https://github.com/AndrewMohawk/Aurora/raw/master/github/Aurora_Ambient_Light_test_video.gif)
 
