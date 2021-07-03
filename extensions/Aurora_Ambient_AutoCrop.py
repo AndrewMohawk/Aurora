@@ -62,25 +62,26 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         h, w, c = sectionTop.shape
         hs = 1
         ws = self.pixelsTop
-
-        resizedTop = cv2.resize(sectionTop, (ws, hs), interpolation=cv2.INTER_AREA)
+        topSize = 1 if self.pixelsTop == 0 else self.pixelsTop
+        resizedTop = cv2.resize(sectionTop, (topSize, hs), interpolation=cv2.INTER_AREA)
+        bottomSize = 1 if self.pixelsBottom == 0 else self.pixelsBottom
         resizedBottom = cv2.resize(
-            sectionBottom, (ws, hs), interpolation=cv2.INTER_AREA
+            sectionBottom, (bottomSize, hs), interpolation=cv2.INTER_AREA
         )
 
         # get shape for sides
         h, w, c = sectionLeft.shape
         hs = self.pixelsLeft
         ws = 1
-
-        resizedLeft = cv2.resize(sectionLeft, (ws, hs), interpolation=cv2.INTER_AREA)
-        resizedRight = cv2.resize(sectionRight, (ws, hs), interpolation=cv2.INTER_AREA)
+        leftSize = 1 if self.pixelsLeft == 0 else self.pixelsLeft
+        resizedLeft = cv2.resize(sectionLeft, (ws, leftSize), interpolation=cv2.INTER_AREA)
+        rightSize = 1 if self.pixelsRight == 0 else self.pixelsRight
+        resizedRight = cv2.resize(sectionRight, (ws, rightSize), interpolation=cv2.INTER_AREA)
 
         # self.log(f"ResizeTime: {datetime.datetime.now()-stopwatchStartTime}")
         # stopwatchStartTime = datetime.datetime.now()
         # Populate LEDs
         startPoint = 0
-
         for i in range(self.pixelsLeft):            
             B, G, R = resizedLeft[i][0]
             self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
