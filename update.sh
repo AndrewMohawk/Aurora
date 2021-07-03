@@ -12,13 +12,13 @@ echo -e "
                 -Update Script-
                 @AndrewMohawk                                                        
 "
-INSTALLDIR = "/opt/Aurora"
+INSTALLDIR="/opt/Aurora"
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root, please use sudo" 
    exit 1
 fi
 
-if [ !-d "$INSTALLDIR" ] 
+if [ ! -d "$INSTALLDIR" ] 
 then
     echo "Directory $INSTALLDIR Does not exist. Please run install first or update the install directory" 
     exit 1
