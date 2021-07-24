@@ -327,12 +327,14 @@ class Aurora_Webserver(object):
     def status(self):
         self.manager.loadConfig()
         enabled_status = self.manager.enabled 
-        current_extension = self.manager.current_extension
+        current_extension = self.manager.current_extension.Name
+        current_extension_class = self.manager.current_extension_name
         with open("VERSION", "r") as f:
             current_version = f.read()
         tmpl = env.get_template("status.json")
         template_variables = {}
         template_variables["current_extension"] = current_extension
+        template_variables["current_extension_class"] = current_extension_class
         template_variables["enabled"] = enabled_status
         template_variables["current_version"] = current_version
         return tmpl.render(template_variables)
