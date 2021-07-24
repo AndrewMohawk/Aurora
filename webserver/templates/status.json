@@ -1,0 +1,6 @@
+{
+    "enabled": {{enabled}},
+    "current_extension": "{{current_extension}}",
+    "current_extension_class": "{{current_extension_class}}",
+    "current_version": "{{current_version}}"
+}
