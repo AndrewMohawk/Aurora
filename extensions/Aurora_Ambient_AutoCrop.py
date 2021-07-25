@@ -19,7 +19,6 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         self.edgeDarkness = (
             5  # this defines the darkness that makes the edges for autocrop
         )
-        
 
     def takeScreenShot(self, filepath, autocrop=False):
         return super().takeScreenShot(filepath, self.edgeDarkness)
@@ -56,5 +55,4 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         self.autocropped_frame = self.autocrop(self.current_frame, self.edgeDarkness)
         # self.log(f"AutoCropTime: {datetime.datetime.now()-stopwatchStartTime}")
 
-        
         self.visualiseFrame(self.autocropped_frame)

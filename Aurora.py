@@ -326,7 +326,7 @@ class Aurora_Webserver(object):
     @cherrypy.expose
     def status(self):
         self.manager.loadConfig()
-        enabled_status = self.manager.enabled 
+        enabled_status = self.manager.enabled
         current_extension = self.manager.current_extension.Name
         current_extension_class = self.manager.current_extension_name
         with open("VERSION", "r") as f:
@@ -453,7 +453,9 @@ class Aurora_Webserver(object):
 
         tmpl = env.get_template("configure.html")
         template_variables = {}
-        template_variables["pixels_darkthreshold"] =  self.manager.current_extension.darkThreshhold
+        template_variables[
+            "pixels_darkthreshold"
+        ] = self.manager.current_extension.darkThreshhold
         template_variables["pixels_left"] = self.manager.current_extension.pixelsLeft
         template_variables["pixels_right"] = self.manager.current_extension.pixelsRight
         template_variables["pixels_top"] = self.manager.current_extension.pixelsTop
@@ -480,6 +482,17 @@ class Aurora_Webserver(object):
         self.manager.messages = []
 
         return tmpl.render(template_variables)
+
+    @cherrypy.expose
+    def toggleEnable(self):
+        if self.manager.enabled:
+            self.manager.tearDownExtension()
+        else:
+            self.manager.setupExtension()
+
+        self.manager.enabled = not self.manager.enabled
+
+        return {"status": self.manager.enabled}
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
@@ -573,9 +586,9 @@ class Aurora_Webserver(object):
         errors = []
         if "darkthreshhold" in input_json:
             try:
-                
+
                 dt = int(input_json["darkthreshhold"])
-                if(dt != pixel_darkthreshold):
+                if dt != pixel_darkthreshold:
                     configChange = True
                     pixel_darkthreshold = dt
             except Exception as e:
@@ -622,7 +635,6 @@ class Aurora_Webserver(object):
                 errors.append(str(e))
                 pass  # whatever, you are doing bad things with input
 
-
         pixelcount_total = (
             pixelcount_left + pixelcount_right + pixelcount_top + pixelcount_bottom
         )
@@ -655,7 +667,9 @@ class Aurora_Webserver(object):
                 self.manager.config.set(
                     "AURORA", "AURORA_PIXELCOUNT_TOTAL", str(pixelcount_total)
                 )
-                self.manager.config.set("AURORA","AURORA_DARKTHRESHOLD",str(pixel_darkthreshold))
+                self.manager.config.set(
+                    "AURORA", "AURORA_DARKTHRESHOLD", str(pixel_darkthreshold)
+                )
                 self.manager.config.set("GENERAL", "configured", "True")
                 self.manager.saveConfig()
                 self.manager.addMessage("Saved config!")

@@ -47,7 +47,9 @@ class AuroraExtension:
             self.pixelsTop = int(os.environ["AURORA_PIXELCOUNT_TOP"])
             self.pixelsBottom = int(os.environ["AURORA_PIXELCOUNT_BOTTOM"])
             self.gamma = float(os.environ["AURORA_GAMMA"])
-            self.darkThreshhold =  int(os.environ["AURORA_DARKTHRESHOLD"])  # this defines if we are gonna bother lighting up the pixels if they are below this threshold
+            self.darkThreshhold = int(
+                os.environ["AURORA_DARKTHRESHOLD"]
+            )  # this defines if we are gonna bother lighting up the pixels if they are below this threshold
         # This is no longer used as it makes it noticably slower :(
 
         except Exception as e:
@@ -187,7 +189,6 @@ class AuroraExtension:
                 r = 800 / float(pixelImageWidth)
                 dim = (800, int(pixelImageHeight * r))
                 pixelImage = cv2.resize(pixelImage, dim, interpolation=cv2.INTER_AREA)
-                
 
             cv2.imwrite(filepath, pixelImage)
             # self.log("Saved PixelImage")
@@ -228,54 +229,57 @@ class AuroraExtension:
 
         return [False, False]
 
-    
-    
     # Take a screenshot and put the outline over it, use the border edges if neccessary
-    def takeScreenShot(self, filepath, autocrop=False,aspectCrop=False, borderEdges = [0,0,0,0]):
+    def takeScreenShot(
+        self, filepath, autocrop=False, aspectCrop=False, borderEdges=[0, 0, 0, 0]
+    ):
         screenshot_frame = self.current_frame
 
         if autocrop != False:
             screenshot_frame = self.autocrop(self.current_frame, autocrop)
             # logging.info(f"Cropped Screenshot to {screenshot_frame.shape}")
 
-        if(aspectCrop != False):
+        if aspectCrop != False:
             vid_h, vid_w, channels = screenshot_frame.shape
             aspectRatioGap = vid_h - (vid_w / self.aspectRatio)
-            aspectRatioGap = aspectRatioGap / 2 # since we want to put some top and bottom
+            aspectRatioGap = (
+                aspectRatioGap / 2
+            )  # since we want to put some top and bottom
             aspectRatioGap = int(aspectRatioGap)
-            #aspectRatioGap = 50
-            borderEdges = [0,aspectRatioGap,0,aspectRatioGap]
-            #screenshot_frame = self.aspectCrop(self.current_frame,aspectCrop)
+            # aspectRatioGap = 50
+            borderEdges = [0, aspectRatioGap, 0, aspectRatioGap]
+            # screenshot_frame = self.aspectCrop(self.current_frame,aspectCrop)
             self.vid_h, self.vid_w, self.channels = screenshot_frame.shape
-
-
 
         self.vid_h, self.vid_w, self.channels = screenshot_frame.shape
 
-        #This is for the outline starting and ending points
-        borderGap = 2 #distance away from the border so we can still see the lines
+        # This is for the outline starting and ending points
+        borderGap = 2  # distance away from the border so we can still see the lines
         self.log(borderEdges)
         borderTop = 0 + borderGap - 2 + borderEdges[1]
         borderLeft = 0 + borderGap - 2 + borderEdges[0]
-        borderBottom = self.vid_h-borderGap - borderEdges[3]
+        borderBottom = self.vid_h - borderGap - borderEdges[3]
         borderRight = self.vid_w - borderGap - borderEdges[2]
-        #133,0,345,638
-        
-        #border sizes
+        # 133,0,345,638
+
+        # border sizes
         widthPixels = int(borderRight * (self.percent / 100)) + 1
         heightPixels = int(borderBottom * (self.percent / 100) * 2) + 1
 
-       
-        if(widthPixels < 15):
+        if widthPixels < 15:
             widthPixels = 15
-        if(heightPixels < 12):
+        if heightPixels < 12:
             heightPixels = 12
 
-        borderColour = (0, 0,255)
-        
+        borderColour = (0, 0, 255)
+
         # top
         screenshot_frame = cv2.rectangle(
-            screenshot_frame, (borderLeft,borderTop), (borderRight, borderTop+heightPixels), borderColour, 1
+            screenshot_frame,
+            (borderLeft, borderTop),
+            (borderRight, borderTop + heightPixels),
+            borderColour,
+            1,
         )
 
         # bottom
@@ -288,7 +292,11 @@ class AuroraExtension:
         )
         # left
         screenshot_frame = cv2.rectangle(
-            screenshot_frame, (borderLeft,borderTop), (widthPixels, borderBottom), borderColour, 1
+            screenshot_frame,
+            (borderLeft, borderTop),
+            (widthPixels, borderBottom),
+            borderColour,
+            1,
         )
         # right
         screenshot_frame = cv2.rectangle(
@@ -310,7 +318,7 @@ class AuroraExtension:
             logging.debug("DEBUG {} : {}".format(self.Name, log_string))
 
     # This class runs the visualisation (mandatory)
-    def visualiseFrame(self,frame):
+    def visualiseFrame(self, frame):
         self.current_frame = frame
         try:
             # In your inheritted class run things here
@@ -340,7 +348,9 @@ class AuroraExtension:
             hs = 1
             ws = self.pixelsTop
             topSize = 1 if self.pixelsTop == 0 else self.pixelsTop
-            resizedTop = cv2.resize(sectionTop, (topSize, hs), interpolation=cv2.INTER_AREA)
+            resizedTop = cv2.resize(
+                sectionTop, (topSize, hs), interpolation=cv2.INTER_AREA
+            )
             bottomSize = 1 if self.pixelsBottom == 0 else self.pixelsBottom
             resizedBottom = cv2.resize(
                 sectionBottom, (bottomSize, hs), interpolation=cv2.INTER_AREA
@@ -351,18 +361,22 @@ class AuroraExtension:
             hs = self.pixelsLeft
             ws = 1
             leftSize = 1 if self.pixelsLeft == 0 else self.pixelsLeft
-            resizedLeft = cv2.resize(sectionLeft, (ws, leftSize), interpolation=cv2.INTER_AREA)
+            resizedLeft = cv2.resize(
+                sectionLeft, (ws, leftSize), interpolation=cv2.INTER_AREA
+            )
             rightSize = 1 if self.pixelsRight == 0 else self.pixelsRight
-            resizedRight = cv2.resize(sectionRight, (ws, rightSize), interpolation=cv2.INTER_AREA)
+            resizedRight = cv2.resize(
+                sectionRight, (ws, rightSize), interpolation=cv2.INTER_AREA
+            )
 
             # self.log(f"ResizeTime: {datetime.datetime.now()-stopwatchStartTime}")
             # stopwatchStartTime = datetime.datetime.now()
             # Populate LEDs
             startPoint = 0
-            for i in range(self.pixelsLeft):            
+            for i in range(self.pixelsLeft):
                 B, G, R = resizedLeft[i][0]
                 self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
-            
+
             startShowTime = datetime.datetime.now()
             startPoint += self.pixelsLeft
             for i in range(self.pixelsTop):
@@ -377,14 +391,14 @@ class AuroraExtension:
             startPoint += self.pixelsRight
             for i in range(self.pixelsBottom):
                 B, G, R = (0, 0, 0)
-                if(any(val > self.darkThreshhold for val in resizedBottom[0][i])):
+                if any(val > self.darkThreshhold for val in resizedBottom[0][i]):
                     B, G, R = resizedBottom[0][i]
                 self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
 
-            for key,test_cols in enumerate(self.pixels):
-                if(all(val < self.darkThreshhold for val in test_cols)):
-                    self.pixels[key] = (0,0,0)
-            
+            for key, test_cols in enumerate(self.pixels):
+                if all(val < self.darkThreshhold for val in test_cols):
+                    self.pixels[key] = (0, 0, 0)
+
             # self.log(f"DisplayTime: {datetime.datetime.now()-stopwatchStartTime}")
             # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
             self.pixels.show()
