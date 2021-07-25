@@ -24,6 +24,26 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
     def takeScreenShot(self, filepath, autocrop=False):
         return super().takeScreenShot(filepath, self.edgeDarkness)
 
+    def autocrop(self, image, threshold=0):
+        """Crops any edges below or equal to threshold
+        Crops blank image to 1x1.
+        Returns cropped image.
+        """
+        if len(image.shape) == 3:
+            flatImage = np.max(image, 2)
+        else:
+            flatImage = image
+        assert len(flatImage.shape) == 2
+
+        rows = np.where(np.max(flatImage, 0) > threshold)[0]
+        if rows.size:
+            cols = np.where(np.max(flatImage, 1) > threshold)[0]
+            image = image[cols[0] : cols[-1] + 1, rows[0] : rows[-1] + 1]
+        else:
+            image = image[:1, :1]
+
+        return image
+
     def visualise(self):
         # Capture the video frame
         # stopwatchStartTime = datetime.datetime.now()
@@ -33,84 +53,8 @@ class Aurora_Ambient_AutoCrop(AuroraExtension):
         # self.log(f"GetFrame: {datetime.datetime.now()-stopwatchStartTime}")
 
         # stopwatchStartTime = datetime.datetime.now()
-        self.current_frame = self.autocrop(self.current_frame, self.edgeDarkness)
+        self.autocropped_frame = self.autocrop(self.current_frame, self.edgeDarkness)
         # self.log(f"AutoCropTime: {datetime.datetime.now()-stopwatchStartTime}")
 
-        stopwatchStartTime = datetime.datetime.now()
-        self.vid_h, self.vid_w, self.channels = self.current_frame.shape
-
-        if self.vid_h <= 1 and self.vid_w <= 1:
-            if len([pixel for pixel in self.pixels if pixel != (0, 0, 0)]) > 0:
-                self.pixels.fill((0, 0, 0))
-                self.pixels.show()
-            return
-
-        widthPixels = int(self.vid_w * (self.percent / 100)) + 1
-        heightPixels = int(self.vid_h * (self.percent / 100) * 2) + 1
-
-        sectionTop = self.current_frame[0:heightPixels, 0 : self.vid_w]
-        sectionBottom = self.current_frame[
-            self.vid_h - heightPixels : self.vid_h, 0 : self.vid_w
-        ]
-
-        sectionLeft = self.current_frame[0 : self.vid_h, 0:widthPixels]
-        sectionRight = self.current_frame[
-            0 : self.vid_h, self.vid_w - widthPixels : self.vid_w
-        ]
-
-        # get shape
-        h, w, c = sectionTop.shape
-        hs = 1
-        ws = self.pixelsTop
-        topSize = 1 if self.pixelsTop == 0 else self.pixelsTop
-        resizedTop = cv2.resize(sectionTop, (topSize, hs), interpolation=cv2.INTER_AREA)
-        bottomSize = 1 if self.pixelsBottom == 0 else self.pixelsBottom
-        resizedBottom = cv2.resize(
-            sectionBottom, (bottomSize, hs), interpolation=cv2.INTER_AREA
-        )
-
-        # get shape for sides
-        h, w, c = sectionLeft.shape
-        hs = self.pixelsLeft
-        ws = 1
-        leftSize = 1 if self.pixelsLeft == 0 else self.pixelsLeft
-        resizedLeft = cv2.resize(sectionLeft, (ws, leftSize), interpolation=cv2.INTER_AREA)
-        rightSize = 1 if self.pixelsRight == 0 else self.pixelsRight
-        resizedRight = cv2.resize(sectionRight, (ws, rightSize), interpolation=cv2.INTER_AREA)
-
-        # self.log(f"ResizeTime: {datetime.datetime.now()-stopwatchStartTime}")
-        # stopwatchStartTime = datetime.datetime.now()
-        # Populate LEDs
-        startPoint = 0
-        for i in range(self.pixelsLeft):            
-            B, G, R = resizedLeft[i][0]
-            self.pixels[self.pixelsLeft - (startPoint + i) - 1] = (R, G, B)
-        startShowTime = datetime.datetime.now()
-        startPoint += self.pixelsLeft
-        for i in range(self.pixelsTop):
-            B, G, R = resizedTop[0][i]
-            self.pixels[startPoint + i] = (R, G, B)
-
-        startPoint += self.pixelsTop
-        for i in range(self.pixelsRight):
-            B, G, R = resizedRight[i][0]
-            self.pixels[startPoint + i] = (R, G, B)
-
-        startPoint += self.pixelsRight
-        for i in range(self.pixelsBottom):
-            B, G, R = (0, 0, 0)
-            if(any(val > self.darkThreshhold for val in resizedBottom[0][i])):
-                B, G, R = resizedBottom[0][i]
-            self.pixels[startPoint + self.pixelsBottom - i - 1] = (R, G, B)
-
-        for key,test_cols in enumerate(self.pixels):
-            if(all(val < self.darkThreshhold for val in test_cols)):
-               self.pixels[key] = (0,0,0)
-        # self.log(f"DisplayTime: {datetime.datetime.now()-stopwatchStartTime}")
-        # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
-        self.pixels.show()
-
-        # self.log(f"Total time taken: {datetime.datetime.now()-totalStartTime}")
-        # self.log("----------------------")
-        # visualise!
-        self.count += 1
+        
+        self.visualiseFrame(self.autocropped_frame)
