@@ -323,6 +323,7 @@ class Aurora_Webserver(object):
     def __init__(self, Manager):
         self.manager = Manager
 
+    @cherrypy.tools.json_out()
     @cherrypy.expose
     def status(self):
         self.manager.loadConfig()
@@ -483,6 +484,7 @@ class Aurora_Webserver(object):
 
         return tmpl.render(template_variables)
 
+    @cherrypy.tools.json_out()
     @cherrypy.expose
     def toggleEnable(self):
         if self.manager.enabled:
