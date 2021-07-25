@@ -189,6 +189,7 @@ class AuroraExtension:
                 r = 800 / float(pixelImageWidth)
                 dim = (800, int(pixelImageHeight * r))
                 pixelImage = cv2.resize(pixelImage, dim, interpolation=cv2.INTER_AREA)
+                
 
             cv2.imwrite(filepath, pixelImage)
             # self.log("Saved PixelImage")
@@ -229,10 +230,17 @@ class AuroraExtension:
 
         return [False, False]
 
+<<<<<<< HEAD
     # Take a screenshot and put the outline over it, use the border edges if neccessary
     def takeScreenShot(
         self, filepath, autocrop=False, aspectCrop=False, borderEdges=[0, 0, 0, 0]
     ):
+=======
+    
+    
+    # Take a screenshot and put the outline over it, use the border edges if neccessary
+    def takeScreenShot(self, filepath, autocrop=False,aspectCrop=False, borderEdges = [0,0,0,0]):
+>>>>>>> 166d2ce99cfe54c8de93e04e6b85c84e4b32b8ad
         screenshot_frame = self.current_frame
 
         if autocrop != False:
@@ -273,6 +281,29 @@ class AuroraExtension:
 
         borderColour = (0, 0, 255)
 
+        self.vid_h, self.vid_w, self.channels = screenshot_frame.shape
+
+        #This is for the outline starting and ending points
+        borderGap = 2 #distance away from the border so we can still see the lines
+        self.log(borderEdges)
+        borderTop = 0 + borderGap - 2 + borderEdges[1]
+        borderLeft = 0 + borderGap - 2 + borderEdges[0]
+        borderBottom = self.vid_h-borderGap - borderEdges[3]
+        borderRight = self.vid_w - borderGap - borderEdges[2]
+        #133,0,345,638
+        
+        #border sizes
+        widthPixels = int(borderRight * (self.percent / 100)) + 1
+        heightPixels = int(borderBottom * (self.percent / 100) * 2) + 1
+
+       
+        if(widthPixels < 15):
+            widthPixels = 15
+        if(heightPixels < 12):
+            heightPixels = 12
+
+        borderColour = (0, 0,255)
+        
         # top
         screenshot_frame = cv2.rectangle(
             screenshot_frame,
