@@ -1,5 +1,12 @@
 currentAjaxRequest = null; // Stores our current ajax request so we can cancel it if we do another
 
+function togglePower()
+{
+    make_AJAX_Call("/toggleEnable",[],function() {
+        $('#powerToggle').toggleClass("color-theme")
+    })
+}
+
 function make_AJAX_Call(url, data_dict, callback_function = false) {
 
     return_result = false;
