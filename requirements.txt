@@ -1,6 +1,6 @@
 numpy >= 1.16.5
 pandas
-opencv-python
+opencv-python==4.5.1.48
 cherrypy
 configparser
 adafruit-circuitpython-neopixel
